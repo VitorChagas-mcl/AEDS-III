@@ -87,7 +87,7 @@ public class Usuario {
         return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalizado).replaceAll(""); 
     }
 
-    public byte[] toByteArray() throws IOException {
+    public byte[] serialize() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
         dos.writeInt(idUsuario);
@@ -99,7 +99,7 @@ public class Usuario {
         return baos.toByteArray();
     }
 
-    public void fromByteArray(byte[] b) throws IOException {
+    public void deserialize(byte[] b) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(b);
         DataInputStream dis = new DataInputStream(bais);
         idUsuario = dis.readInt();
