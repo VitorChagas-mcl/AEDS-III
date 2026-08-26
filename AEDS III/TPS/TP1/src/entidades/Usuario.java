@@ -1,5 +1,10 @@
 package entidades;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
@@ -80,5 +85,36 @@ public class Usuario {
         } 
         String normalizado = Normalizer.normalize( texto, Normalizer.Form.NFD ); 
         return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalizado).replaceAll(""); 
+    }
+
+    public byte[] toByteArray() throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.writeInt(idUsuario);
+        dos.writeUTF(nome);
+        dos.writeUTF(email);
+        dos.writeInt(hashSenha);
+        dos.writeUTF(perguntaSecreta);
+        dos.writeInt(hashRespostaSecreta);
+        return baos.toByteArray();
+    }
+
+    public void fromByteArray(byte[] b) throws IOException {
+        ByteArrayInputStream bais = new ByteArrayInputStream(b);
+        DataInputStream dis = new DataInputStream(bais);
+        idUsuario = dis.readInt();
+        nome = dis.readUTF();
+        email = dis.readUTF();
+        hashSenha = dis.readInt();
+        perguntaSecreta = dis.readUTF();
+        hashRespostaSecreta = dis.readInt();
+    }
+
+    @Override
+    public String toString() {
+        return "\nID: " + idUsuario +
+               "\nNome: " + nome +
+               "\nEmail: " + email +
+               "\nPergunta: " + perguntaSecreta;
     }
 }
