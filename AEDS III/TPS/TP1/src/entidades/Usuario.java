@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.text.Normalizer;
 import java.util.regex.Pattern;
 
-public class Usuario {
+import aed3.InterfaceRegistro;
+
+public class Usuario implements InterfaceRegistro {
     private int idUsuario;
     private String nome;
     private String email;
@@ -30,11 +32,13 @@ public class Usuario {
         this.hashRespostaSecreta = hashRespostaSecreta;
     }
 
-    public int getIdUsuario() {
+    @Override
+    public int getId() {
         return idUsuario;
     }
-
-    public void setIdUsuario(int idUsuario) {
+    
+    @Override
+    public void setId(int idUsuario) {
         this.idUsuario = idUsuario;
     }
 
@@ -87,6 +91,7 @@ public class Usuario {
         return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalizado).replaceAll(""); 
     }
 
+    @Override
     public byte[] serialize() throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(baos);
@@ -99,6 +104,7 @@ public class Usuario {
         return baos.toByteArray();
     }
 
+    @Override
     public void deserialize(byte[] b) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(b);
         DataInputStream dis = new DataInputStream(bais);

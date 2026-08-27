@@ -3,7 +3,7 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-public class Arquivo<T extends aed3.InterfaceRegistro> {
+public class Arquivo<T extends InterfaceRegistro> {
     
     RandomAccessFile arquivo; // Arquivo de dados para armazenar registros das entidades 
     String nomeEntidade; // Nome da entidade associada ao arquivo  
