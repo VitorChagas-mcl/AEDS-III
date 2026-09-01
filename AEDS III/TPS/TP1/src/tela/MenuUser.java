@@ -1,7 +1,7 @@
 package tela;
 
 import arquivos.ArquivoUsuario;
-import aux.Leitura;
+import auxiliar.Leitura;
 import entidades.Usuario;
 
 public class MenuUser {

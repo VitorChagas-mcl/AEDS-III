@@ -1,4 +1,4 @@
-package aux;
+package auxiliar;
 
 import java.util.NoSuchElementException;
 import java.util.Scanner;
