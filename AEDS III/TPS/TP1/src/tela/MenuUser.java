@@ -24,8 +24,9 @@ public class MenuUser {
                     return telaLogin();
 
                 case "B":
-                    return telaNovoUsuario();
-                    
+                    telaNovoUsuario();
+                    break;
+
                 case "S":
                     return null;
 
@@ -39,61 +40,87 @@ public class MenuUser {
     public Usuario telaLogin(){
         String login, senha;
         int senhaHash, respostaHash;
-        Usuario usuarioLogado = null;
-        do{
-            System.out.println("\n\nLOGIN");
-            System.out.println("-----");
-            System.out.print("\nLogin: ");
-            login = validarEmail();
-            System.out.print("Senha: ");
-            senha = validarSenha();
-        }while(usuarioLogado == null);
-        return usuarioLogado;
+        Usuario usuarioLogado;
+        System.out.println("\n\nLOGIN");
+        System.out.println("-----");
+        System.out.print("\nLogin (vazio cancela): ");
+        login = Leitura.Teclado().trim();
+        if(login.isEmpty()) return null;
+        System.out.print("\nSenha (vazio cancela): ");
+        senha = Leitura.Teclado().trim();
+        if(senha.isEmpty()) return null;
+
+        try{
+
+        }catch (Exception e){
+            System.out.println("Erro ao fazer login: " + e.getMessage());
+        }
+         System.out.println("Email ou senha incorretos, tente novamente.");
+        return null;
     }
 
-    public Usuario telaNovoUsuario(){
+    public void telaNovoUsuario(){
         String nome, email, senha, perguntaSecreta, respostaPergunta;
         int senhaHash, respostaHash;
-        Usuario usuarioLogado = null;
 
-        do{
-            System.out.println("\n\nNovo Usuário");
-            System.out.println("----------------");
-            System.out.println("\nDigite os dados do novo usuário:");
-            System.out.println("\nDigite seu nome de usuário: ");
-            nome = validarNome();
-            System.out.println("\nDigite seu email: ");
-            email = validarEmail();
-            System.out.println("\nDigite sua senha: ");
-            senha = validarSenha();
-            System.out.println("\nSelencione uma pergunta: ");
-            System.out.println("1) Qual o nome do seu animal de estimação?");
-            System.out.println("2) Qual o nome da sua mãe?");
-            System.out.println("3) Qual a cidade que você nasceu?");
-            switch(Leitura.Teclado().trim()){
-                case "1":
-                    perguntaSecreta = "Qual o nome do seu animal de estimação?";
-                break;
+        System.out.println("\n\nNovo Usuário");
+        System.out.println("----------------");
+        System.out.println("\nDigite os dados do novo usuário:");
+        System.out.println("\nDigite seu nome de usuário: ");
+        nome = validarNome();
+        if(nome == null) return;
+        System.out.println("\nDigite seu email: ");
+        email = validarEmail();
+        if(email == null) return;
+        System.out.println("\nDigite sua senha: ");
+        senha = validarSenha();
+        if(senha == null) return;
+        System.out.println("\nSelecione uma pergunta: (vazio cancela)");
+        System.out.println("1) Qual o nome do seu animal de estimação?");
+        System.out.println("2) Qual o nome da sua mãe?");
+        System.out.println("3) Qual a cidade que você nasceu?");
+        switch(Leitura.Teclado().trim()){
+            case "1":
+                perguntaSecreta = "Qual o nome do seu animal de estimação?";
+            break;
 
-                case "2":
-                    perguntaSecreta = "Qual o nome da sua mãe?";
-                break;
+            case "2":
+                perguntaSecreta = "Qual o nome da sua mãe?";
+            break;
 
-                case "3":
-                    perguntaSecreta = "Qual a cidade que você nasceu?";
-                break;
-            }
-            System.out.println("\nDigite sua Resposta: ");
-            respostaPergunta = Leitura.Teclado().trim();
-        }while(usuarioLogado == null);
-        return usuarioLogado;
+            case "3":
+                perguntaSecreta = "Qual a cidade que você nasceu?";
+            break;
+
+            case "":
+                return;
+            
+            default:
+                System.out.println("Opção inválida, tente novamente.");
+            break;
+        }
+        System.out.println("\nDigite sua Resposta: ");
+        respostaPergunta = validarResposta();
+        if(respostaPergunta == null) return;
+        
+        System.out.print("\nConfirma o cadastro? (S/N) ");
+        if (!Leitura.Teclado().trim().equalsIgnoreCase("S")) {
+            System.out.println("Cadastro cancelado.");
+            return;
+        }
+
+        try{
+
+        }catch (Exception e){
+            System.out.println("Erro ao cadastrar usuário: " + e.getMessage());
+        }
     }
 
     private String validarNome(){
         while(true){
             System.out.print("Nome (min 3 caracteres, vazio cancela): ");
             String nome = Leitura.Teclado().trim();
-            if(nome.isEmpty()) return null;
+            if(nome.isEmpty()) { return null; }
             if(nome.length() >= 4) return nome;
             System.out.println("Nome inválido, digite novamente.");
         }
@@ -116,6 +143,16 @@ public class MenuUser {
             if(senha.isEmpty()) return null;
             if(senha.length() >= 6) return senha;
             System.out.println("Senha inválida, digite novamente.");
+        }
+    }
+
+    private String validarResposta(){
+        while(true){
+            System.out.print("Resposta (min 3 caracteres, vazio cancela): ");
+            String resposta = Leitura.Teclado().trim();
+            if(resposta.isEmpty()) return null;
+            if(resposta.length() >= 3) return resposta;
+            System.out.println("resposta inválida, digite novamente.");
         }
     }
 }
