@@ -5,7 +5,7 @@ public class Main{
         try{
             MenuUser menuUser = new MenuUser();
 
-            Usuario usuarioLogado = menuUser.telaInicio();
+            Usuario usuarioLogado = menuUser.telaLogin();
             if(usuarioLogado == null){
                 System.out.println("Saindo...");
                 return;
