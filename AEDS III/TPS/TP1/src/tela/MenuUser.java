@@ -44,10 +44,10 @@ public class MenuUser {
             System.out.println("\n\nLOGIN");
             System.out.println("-----");
             System.out.print("\nLogin: ");
-            login = Leitura.Teclado().trim();
+            login = validarEmail();
             System.out.print("Senha: ");
-            senha = Leitura.Teclado().trim();
-                }while(usuarioLogado == null);
+            senha = validarSenha();
+        }while(usuarioLogado == null);
         return usuarioLogado;
     }
 
@@ -61,11 +61,11 @@ public class MenuUser {
             System.out.println("----------------");
             System.out.println("\nDigite os dados do novo usuário:");
             System.out.println("\nDigite seu nome de usuário: ");
-            nome = Leitura.Teclado().trim();
+            nome = validarNome();
             System.out.println("\nDigite seu email: ");
-            email = Leitura.Teclado().trim().toLowerCase();
-            System.out.println("\nDigite seu senha: ");
-            senha = Leitura.Teclado().trim();
+            email = validarEmail();
+            System.out.println("\nDigite sua senha: ");
+            senha = validarSenha();
             System.out.println("\nSelencione uma pergunta: ");
             System.out.println("1) Qual o nome do seu animal de estimação?");
             System.out.println("2) Qual o nome da sua mãe?");
@@ -87,5 +87,35 @@ public class MenuUser {
             respostaPergunta = Leitura.Teclado().trim();
         }while(usuarioLogado == null);
         return usuarioLogado;
+    }
+
+    private String validarNome(){
+        while(true){
+            System.out.print("Nome (min 3 caracteres, vazio cancela): ");
+            String nome = Leitura.Teclado().trim();
+            if(nome.isEmpty()) return null;
+            if(nome.length() >= 4) return nome;
+            System.out.println("Nome inválido, digite novamente.");
+        }
+    }
+
+    private String validarEmail(){
+        while(true){
+            System.out.print("Email (Vazio cancela): ");
+            String email = Leitura.Teclado().trim().toLowerCase();
+            if(email.isEmpty()) return null;
+            if(email.contains("@") && email.contains(".")) return email;
+            System.out.println("Email inválido, digite novamente.");
+        }
+    }
+
+    private String validarSenha(){
+        while(true){
+            System.out.print("Senha (min 6 caracteres, vazio cancela): ");
+            String senha = Leitura.Teclado().trim();
+            if(senha.isEmpty()) return null;
+            if(senha.length() >= 6) return senha;
+            System.out.println("Senha inválida, digite novamente.");
+        }
     }
 }
