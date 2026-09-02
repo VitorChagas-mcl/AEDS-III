@@ -66,13 +66,13 @@ public class MenuUser {
         System.out.println("\n\nNovo Usuário");
         System.out.println("----------------");
         System.out.println("\nDigite os dados do novo usuário:");
-        System.out.println("\nDigite seu nome de usuário: ");
+        System.out.println("\nDigite seu nome de usuário (min 3 caracteres, vazio cancela):");
         nome = validarNome();
         if(nome == null) return;
-        System.out.println("\nDigite seu email: ");
+        System.out.println("\nDigite seu email (Vazio cancela): ");
         email = validarEmail();
         if(email == null) return;
-        System.out.println("\nDigite sua senha: ");
+        System.out.println("\nDigite sua senha (min 6 caracteres, vazio cancela): ");
         senha = validarSenha();
         if(senha == null) return;
         System.out.println("\nSelecione uma pergunta: (vazio cancela)");
@@ -99,7 +99,7 @@ public class MenuUser {
                 System.out.println("Opção inválida, tente novamente.");
             break;
         }
-        System.out.println("\nDigite sua Resposta: ");
+        System.out.println("\nDigite sua Resposta (min 3 caracteres, vazio cancela): ");
         respostaPergunta = validarResposta();
         if(respostaPergunta == null) return;
         
@@ -118,7 +118,6 @@ public class MenuUser {
 
     private String validarNome(){
         while(true){
-            System.out.print("Nome (min 3 caracteres, vazio cancela): ");
             String nome = Leitura.Teclado().trim();
             if(nome.isEmpty()) { return null; }
             if(nome.length() >= 4) return nome;
@@ -128,7 +127,6 @@ public class MenuUser {
 
     private String validarEmail(){
         while(true){
-            System.out.print("Email (Vazio cancela): ");
             String email = Leitura.Teclado().trim().toLowerCase();
             if(email.isEmpty()) return null;
             if(email.contains("@") && email.contains(".")) return email;
@@ -138,7 +136,6 @@ public class MenuUser {
 
     private String validarSenha(){
         while(true){
-            System.out.print("Senha (min 6 caracteres, vazio cancela): ");
             String senha = Leitura.Teclado().trim();
             if(senha.isEmpty()) return null;
             if(senha.length() >= 6) return senha;
@@ -148,7 +145,6 @@ public class MenuUser {
 
     private String validarResposta(){
         while(true){
-            System.out.print("Resposta (min 3 caracteres, vazio cancela): ");
             String resposta = Leitura.Teclado().trim();
             if(resposta.isEmpty()) return null;
             if(resposta.length() >= 3) return resposta;
