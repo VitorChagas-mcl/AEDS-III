@@ -1,6 +1,11 @@
 package entidades;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+
 
 import aed3.InterfaceRegistro;
 
@@ -15,7 +20,7 @@ public class Pergunta implements InterfaceRegistro{
     private boolean ativa; //perguntas arquivadas tem que ter esse atributo como false(considerando que elas não podem ser excluidas, apenas arquivadas)
 
     public Pergunta(){
-        this(-1,-1, 0, 0, 0, "", "", false);
+        this(-1, -1, 0L, 0L, (short)0, "", "", true);
     }
 
     public Pergunta(int idPergunta, int idUsuario, long criacao, long alteracao, short nota, String pergunta, String palavrasChave, boolean ativa){
