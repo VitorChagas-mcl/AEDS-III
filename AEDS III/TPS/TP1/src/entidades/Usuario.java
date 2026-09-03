@@ -23,7 +23,16 @@ public class Usuario implements InterfaceRegistro {
         this(-1, "", "", 0, "", 0);
     }
 
-    public Usuario(int idUsuario, String nome, String email, int hashSenha, String perguntaSecreta, int hashRespostaSecreta){
+    public Usuario(String nome, String email, String hashSenha, String perguntaSecreta, String hashRespostaSecreta){
+        this.idUsuario = -1;
+        this.nome = nome;
+        this.email = email;
+        this.hashSenha = hashSenha.hashCode();
+        this.perguntaSecreta = perguntaSecreta;
+        this.hashRespostaSecreta = hashRespostaSecreta.trim().toLowerCase().hashCode();
+    }
+
+    public Usuario(int idUsuario, String nome, String email, int hashSenha, String perguntaSecreta, int hashRespostaSecreta) {
         this.idUsuario = idUsuario;
         this.nome = nome;
         this.email = email;

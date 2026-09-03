@@ -8,6 +8,10 @@ public class MenuUser {
 
     private ArquivoUsuario arqUsuario;
     
+    public MenuUser() throws Exception {
+        arqUsuario = new ArquivoUsuario();
+    }
+
     public Usuario telaInicio(){
         String op;
         do{
@@ -39,8 +43,6 @@ public class MenuUser {
 
     public Usuario telaLogin(){
         String login, senha;
-        int senhaHash, respostaHash;
-        Usuario usuarioLogado;
         System.out.println("\n\nLOGIN");
         System.out.println("-----");
         System.out.print("\nLogin (vazio cancela): ");
@@ -60,8 +62,7 @@ public class MenuUser {
     }
 
     public void telaNovoUsuario(){
-        String nome, email, senha, perguntaSecreta, respostaPergunta;
-        int senhaHash, respostaHash;
+        String nome, email, senha, perguntaSecreta = null, respostaPergunta;
 
         System.out.println("\n\nNovo Usuário");
         System.out.println("----------------");
@@ -110,7 +111,8 @@ public class MenuUser {
         }
 
         try{
-
+            arqUsuario.create(new Usuario(nome, email, senha, perguntaSecreta, respostaPergunta));
+            System.out.println("Usuário cadastrado com sucesso!");
         }catch (Exception e){
             System.out.println("Erro ao cadastrar usuário: " + e.getMessage());
         }

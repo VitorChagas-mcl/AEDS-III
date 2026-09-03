@@ -11,7 +11,8 @@ public class Main{
                 return;
             }
         }catch(Exception e){
-
+            System.out.println("Erro do sistema: " + e);
+            e.printStackTrace();
         }
     }
 }

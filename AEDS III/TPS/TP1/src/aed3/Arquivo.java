@@ -3,9 +3,10 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-public class Arquivo<T extends InterfaceRegistro> {
+public class Arquivo<T extends aed3.InterfaceRegistro> {
     
-    RandomAccessFile arquivo; // Arquivo de dados para armazenar registros das entidades 
+    RandomAccessFile arquivo; // Arquivo de dados para armazenar registros das entidades
+    HashExtensivel<ParIDEndereco> indiceID; // Índice direto baseado no ID da entidade 
     String nomeEntidade; // Nome da entidade associada ao arquivo  
     Constructor<T> construtor; // Construtor da entidade para criar instâncias durante a leitura  
     final int TAMANHO_CABECALHO = 12; // Tamanho do cabeçalho do arquivo (4 bytes para ultimoId + 8 bytes para primeiroLivre)
@@ -17,14 +18,22 @@ public class Arquivo<T extends InterfaceRegistro> {
      * @param nomeEntidade Nome da entidade para o arquivo de dados
      * @throws IOException Se houver erro ao criar ou acessar o arquivo
      */
-    public Arquivo(String nomeEntidade, Constructor<T> construtor) throws IOException {
+    public Arquivo(String nomeEntidade, Constructor<T> construtor) throws Exception {
         File f = new File("./dados");
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+        f = new File("./dados/"+nomeEntidade);
         if (!f.exists()) {
             f.mkdirs();
         }
         this.nomeEntidade = nomeEntidade;
         this.construtor = construtor;
-        arquivo = new RandomAccessFile("./dados/" + nomeEntidade + ".db", "rw");
+        arquivo = new RandomAccessFile("./dados/" + nomeEntidade + "/arquivo.db", "rw");
+        indiceID = new HashExtensivel<>(ParIDEndereco.class.getConstructor(), 
+            4,
+            "./dados/" + nomeEntidade + "/indiceID.diretorio.db",
+            "./dados/" + nomeEntidade + "/indiceID.cestos.db");
         if(arquivo.length()<12) {
             arquivo.writeInt(0); // ultimoId: id do último registro criado
             arquivo.writeLong(-1); // primeiroLivre: posição do primeiro slot livre
@@ -61,10 +70,15 @@ public class Arquivo<T extends InterfaceRegistro> {
             arquivo.write(registro);
         } else {
             arquivo.seek(arquivo.length());
+            posicaoLivre = arquivo.getFilePointer();
             arquivo.writeBoolean(false);  // lápide
             arquivo.writeShort(registro.length);   // length é int; mas writeShort ignora os 2 bytes mais significativos
             arquivo.write(registro);
         }
+
+        // Insere o par ID e endereço no índice
+        ParIDEndereco pIE = new ParIDEndereco(novoId, posicaoLivre);
+        indiceID.create(pIE);
 
         // Retornando o novo id da entidade criada
         return novoId;
@@ -81,19 +95,26 @@ public class Arquivo<T extends InterfaceRegistro> {
      */
     public T read(int id) throws Exception {
 
-        arquivo.seek(TAMANHO_CABECALHO); // pula o cabeçalho
-        while (arquivo.getFilePointer() < arquivo.length()) {
-            boolean lapide = arquivo.readBoolean();
-            int length = arquivo.readUnsignedShort();
-            byte[] registro = new byte[length];
-            arquivo.readFully(registro);
+        // Busca o endereço do registro no índice
+        // Essa busca usa o hashCode da chave, que, neste caso, é o próprio ID da entidade
+        ParIDEndereco pIE = indiceID.read(id);
+        if (pIE == null) {
+            return null;
+        }
 
-            if (!lapide) {
-                T entidade = construtor.newInstance(); // Cria uma nova instância da entidade usando o construtor fornecido
-                entidade.deserialize(registro);
-                if (entidade.getId() == id) {
-                    return entidade;
-                }
+        // Lê o registro no arquivo de dados
+        long pos = pIE.getEndereco();
+        arquivo.seek(pos);
+        boolean lapide = arquivo.readBoolean();
+        int length = arquivo.readUnsignedShort();
+        byte[] registro = new byte[length];
+        arquivo.readFully(registro);
+
+        if (!lapide) {
+            T entidade = construtor.newInstance(); // Cria uma nova instância da entidade usando o construtor fornecido
+            entidade.deserialize(registro);
+            if (entidade.getId() == id) {
+                return entidade;
             }
         }
         return null; // Retorna null se a entidade não for encontrada
@@ -125,55 +146,65 @@ public class Arquivo<T extends InterfaceRegistro> {
 
 
     public boolean update(T entidadeAtualizada) throws Exception {
-        arquivo.seek(TAMANHO_CABECALHO); // pula o cabeçalho
-        while (arquivo.getFilePointer() < arquivo.length()) {
-            long posicaoRegistro = arquivo.getFilePointer();
-            boolean lapide = arquivo.readBoolean();
-            int length = arquivo.readUnsignedShort();
-            byte[] registro = new byte[length];
-            arquivo.readFully(registro);
 
-            if (!lapide) {
-                T entidadeExistente = construtor.newInstance();
-                entidadeExistente.deserialize(registro);
-                if (entidadeExistente.getId() == entidadeAtualizada.getId()) {
-                    byte[] novoRegistro = entidadeAtualizada.serialize();
-                    if (novoRegistro.length <= length) {
-                        // Atualiza o registro existente
-                        arquivo.seek(posicaoRegistro + 3); // Pula lápide e length
-                        arquivo.write(novoRegistro);
-                        for(int i=novoRegistro.length; i<length; i++) {
-                            arquivo.writeByte(0); // Preenche o restante com zeros
-                        }
-                        return true; // Retorna true se a entidade for encontrada e atualizada
-                    } else {
-                        // Se o novo registro for maior, marca o antigo como excluído e cria um novo registro no final
-                        arquivo.seek(posicaoRegistro);
-                        arquivo.writeBoolean(true); // Marca a lápide como true (excluído)
-                        arquivo.skipBytes(2);       // Pula o campo length
-                        for(int i=0; i<length; i++) {
-                            arquivo.writeByte(0);   // Preenche o registro com zeros
-                        }
-                        insertFreeSlot(posicaoRegistro, length); // Insere o slot livre na lista de slots livres
+        // Busca o endereço do registro no índice
+        int id = entidadeAtualizada.getId();
+        ParIDEndereco pIE = indiceID.read(id);
+        if (pIE == null) {
+            return false;
+        }
 
-                        // Cria um novo registro no final do arquivo
-                        long posicaoLivre = findFreeSlot(novoRegistro.length);
-                        if(posicaoLivre!=-1) {
-                            arquivo.seek(posicaoLivre);
-                            arquivo.writeBoolean(false);  // lápide
-                            arquivo.skipBytes(2);   // length é int; mas writeShort ignora os 2 bytes mais significativos
-                            arquivo.write(novoRegistro);
-                        } else {
-                            arquivo.seek(arquivo.length());
-                            arquivo.writeBoolean(false);  // lápide
-                            arquivo.writeShort(novoRegistro.length);   // length é int; mas writeShort ignora os 2
-                            arquivo.write(novoRegistro);
-                        }
-                        return true; // Retorna true se a entidade for encontrada e atualizada 
+        // Lê o registro no arquivo de dados
+        long pos = pIE.getEndereco();
+        arquivo.seek(pos);
+        boolean lapide = arquivo.readBoolean();
+        int length = arquivo.readUnsignedShort();
+        byte[] registro = new byte[length];
+        arquivo.readFully(registro);
+
+        if (!lapide) {
+            T entidadeExistente = construtor.newInstance();
+            entidadeExistente.deserialize(registro);
+            if (entidadeExistente.getId() == entidadeAtualizada.getId()) {
+                byte[] novoRegistro = entidadeAtualizada.serialize();
+                if (novoRegistro.length <= length) {
+                    // Atualiza o registro existente
+                    arquivo.seek(pos + 3); // Pula lápide e length
+                    arquivo.write(novoRegistro);
+                    for(int i=novoRegistro.length; i<length; i++) {
+                        arquivo.writeByte(0); // Preenche o restante com zeros
                     }
+                    return true; // Retorna true se a entidade for encontrada e atualizada
+                } else {
+                    // Se o novo registro for maior, marca o antigo como excluído e cria um novo registro no final
+                    arquivo.seek(pos);
+                    arquivo.writeBoolean(true); // Marca a lápide como true (excluído)
+                    arquivo.skipBytes(2);       // Pula o campo length
+                    for(int i=0; i<length; i++) {
+                        arquivo.writeByte(0);   // Preenche o registro com zeros
+                    }
+                    insertFreeSlot(pos, length); // Insere o slot livre na lista de slots livres
+
+                    // Cria um novo registro no final do arquivo
+                    long novaPosicao = findFreeSlot(novoRegistro.length);
+                    if(novaPosicao!=-1) {
+                        arquivo.seek(novaPosicao);
+                        arquivo.writeBoolean(false);  // lápide
+                        arquivo.skipBytes(2);   // length é int; mas writeShort ignora os 2 bytes mais significativos
+                        arquivo.write(novoRegistro);
+                    } else {
+                        arquivo.seek(arquivo.length());
+                        novaPosicao = arquivo.getFilePointer();
+                        arquivo.writeBoolean(false);  // lápide
+                        arquivo.writeShort(novoRegistro.length);   // length é int; mas writeShort ignora os 2
+                        arquivo.write(novoRegistro);
+                    }
+                    indiceID.update(new ParIDEndereco(id, novaPosicao)); // Atualiza o índice com a nova posição
+                    return true; // Retorna true se a entidade for encontrada e atualizada 
                 }
             }
         }
+    
         return false; // Retorna false se a entidade não for encontrada 
     }
 
@@ -187,27 +218,33 @@ public class Arquivo<T extends InterfaceRegistro> {
      */
     public boolean delete(int id) throws Exception {
 
-        arquivo.seek(TAMANHO_CABECALHO); // pula o cabeçalho
-        while (arquivo.getFilePointer() < arquivo.length()) {
-            long posicaoRegistro = arquivo.getFilePointer();
-            boolean lapide = arquivo.readBoolean();
-            int length = arquivo.readUnsignedShort();
-            byte[] registro = new byte[length];
-            arquivo.readFully(registro);
+        // Busca o endereço do registro no índice
+        ParIDEndereco pIE = indiceID.read(id);
+        if (pIE == null) {
+            return false;
+        }
 
-            if (!lapide) {
-                T entidade = construtor.newInstance();
-                entidade.deserialize(registro);
-                if (entidade.getId() == id) {
-                    arquivo.seek(posicaoRegistro);
-                    arquivo.writeBoolean(true); // Marca a lápide como true (excluído)
-                    arquivo.skipBytes(2);       // Pula o campo length
-                    for(int i=0; i<length; i++) {
-                        arquivo.writeByte(0);   // Preenche o registro com zeros
-                    }   
-                    insertFreeSlot(posicaoRegistro, length); // Insere o slot livre na lista de slots livres
-                    return true; // Retorna true se a entidade for encontrada e marcada como excluída
-                }
+        // Lê o registro no arquivo de dados
+        long pos = pIE.getEndereco();
+        arquivo.seek(pos);
+        boolean lapide = arquivo.readBoolean();
+        int length = arquivo.readUnsignedShort();
+        byte[] registro = new byte[length];
+        arquivo.readFully(registro);
+
+        if (!lapide) {
+            T entidade = construtor.newInstance();
+            entidade.deserialize(registro);
+            if (entidade.getId() == id) {
+                arquivo.seek(pos);
+                arquivo.writeBoolean(true); // Marca a lápide como true (excluído)
+                arquivo.skipBytes(2);       // Pula o campo length
+                for(int i=0; i<length; i++) {
+                    arquivo.writeByte(0);   // Preenche o registro com zeros
+                }   
+                insertFreeSlot(pos, length); // Insere o slot livre na lista de slots livres
+                indiceID.delete(id); // Remove o par ID e endereço do índice
+                return true; // Retorna true se a entidade for encontrada e marcada como excluída
             }
         }
         return false; // Retorna false se a entidade não for encontrada
@@ -398,6 +435,7 @@ public class Arquivo<T extends InterfaceRegistro> {
      * @throws IOException Se houver erro ao fechar o arquivo
      */
     public void close() throws IOException {
+        indiceID.close();
         arquivo.close();
     }
 
