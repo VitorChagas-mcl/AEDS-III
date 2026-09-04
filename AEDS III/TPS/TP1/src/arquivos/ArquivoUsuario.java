@@ -11,6 +11,7 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
         this.hashEmail = new HashExtensivel<>(ParIdEmail.class.getConstructor(), 4, "./dados/Usuario/indiceID.diretorio.db", "./dados/Usuario/indiceID.cestos.db");
     }
 
+    @Override
     public int create(Usuario usuario) throws Exception {
         if(this.readByEmail(usuario.getEmail()) != null)
             throw new Exception("Email já cadastrado.");
@@ -25,7 +26,8 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
         return super.read(par.getId()); 
     }
 
-    public boolean Update(Usuario usuarioNovo) throws Exception {
+    @Override
+    public boolean update(Usuario usuarioNovo) throws Exception {
         Usuario usuarioAntigo = super.read(usuarioNovo.getId());
         if(usuarioAntigo == null) return false;
 
@@ -41,7 +43,8 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
         }
         return false;
     }
-
+    
+    @Override
     public boolean delete(int id) throws Exception {
         if(super.read(id) == null){
             System.out.println("Usuario não encontrado.");
