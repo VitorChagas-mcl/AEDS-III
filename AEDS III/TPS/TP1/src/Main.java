@@ -4,12 +4,13 @@ public class Main{
     public static void main(String[] args){
         try{
             MenuUser menuUser = new MenuUser();
-
+            
             Usuario usuarioLogado = menuUser.telaInicio();
             if(usuarioLogado == null){
                 System.out.println("Saindo...");
                 return;
             }
+
         }catch(Exception e){
             System.out.println("Erro do sistema: " + e);
             e.printStackTrace();

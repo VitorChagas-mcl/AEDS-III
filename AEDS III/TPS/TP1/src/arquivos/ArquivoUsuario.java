@@ -24,4 +24,32 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
         if(par == null) return null;
         return super.read(par.getId()); 
     }
+
+    public boolean Update(Usuario usuarioNovo) throws Exception {
+        Usuario usuarioAntigo = super.read(usuarioNovo.getId());
+        if(usuarioAntigo == null) return false;
+
+        boolean emailNovo = !usuarioAntigo.getEmail().equalsIgnoreCase(usuarioNovo.getEmail());
+        if(emailNovo && this.readByEmail(usuarioNovo.getEmail()) != null)
+            throw new Exception("Email já cadastrado.");
+        if(super.update(usuarioAntigo)){
+            if(emailNovo){
+                hashEmail.delete(ParIdEmail.hash(usuarioAntigo.getEmail()));
+                hashEmail.create(new ParIdEmail(usuarioNovo.getId(), usuarioNovo.getEmail()));
+            }
+            return true;   
+        }
+        return false;
+    }
+
+    public boolean delete(int id) throws Exception {
+        if(super.read(id) == null){
+            System.out.println("Usuario não encontrado.");
+            return false;
+        }
+        Usuario usuario = super.read(id);
+        if(super.delete(id))
+            return hashEmail.delete(ParIdEmail.hash(usuario.getEmail()));
+        return false;
+    }
 }
