@@ -9,7 +9,7 @@ relacionamentos entre dois IDs de entidades quaisquer
 Implementado pelo Prof. Marcos Kutova
 v1.0 - 2021
 */
-package aed3;
+package aed3.aed3;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

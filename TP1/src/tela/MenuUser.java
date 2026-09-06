@@ -32,13 +32,15 @@ public class MenuUser {
                     break;
 
                 case "S":
-                    return null;
+                    System.out.println("Saindo...");
+                    break;
 
                 default:
                     System.out.println("Digite uma opção valida");
                 break;
             }
-        }while(true);
+        }while(!op.equalsIgnoreCase("S"));
+        return null;
     }
 
     public Usuario telaLogin(){
@@ -57,7 +59,7 @@ public class MenuUser {
         }catch (Exception e){
             System.out.println("Erro ao fazer login: " + e.getMessage());
         }
-         System.out.println("Email ou senha incorretos, tente novamente.");
+        System.out.println("Email ou senha incorretos, tente novamente.");
         return null;
     }
 
@@ -116,6 +118,48 @@ public class MenuUser {
         }catch (Exception e){
             System.out.println("Erro ao cadastrar usuário: " + e.getMessage());
         }
+    }
+
+    public void telaMinhaArea(Usuario usuarioLogado){
+        String op;
+        do{
+            System.out.println("\n\nAJUDA AÍ 1.0");
+            System.out.println("------------");
+            System.out.println("\n> Inicio > Minha área");
+            System.out.println("\n(A) Meus dados");
+            System.out.println("(B) Minhas perguntas");
+            System.out.println("(C) Minhas respostas");
+            System.out.println("(D) Meus votos");
+            System.out.println("\n(R) Retornar ao menu anterior");
+            System.out.println("\nOpção: ");
+            op = Leitura.Teclado().trim().toUpperCase();
+        }while(!op.equals("R"));
+    }
+
+    public void telaMeusDados(Usuario usuarioLogado){
+        String op;
+        do{
+            System.out.println("\n\nAJUDA AÍ 1.0");
+            System.out.println("------------");
+            System.out.println("\n> Inicio > Minha área > Meus dados");
+            System.out.println("\n(A) Alterar Nome");
+            System.out.println("(B) Alterar Email");
+            System.out.println("(C) Alterar senha");
+            System.out.println("(D) Alterar pergunta e resposta de recuperação de senha");
+            System.out.println("\n(R) Retornar ao menu anterior");
+            System.out.println("\nOpção: ");
+            op = Leitura.Teclado().trim().toUpperCase();
+        }while(!op.equals("R"));
+    }
+
+    public void telaMinhasPerguntas(Usuario usuarioLogado){
+        System.out.println("\n\nAJUDA AÍ 1.0");
+        System.out.println("------------");
+        System.out.println("\nMINHAS PERGUNTAS");
+
+        System.out.println("Pressione qualquer tecla para continuar...");
+        Leitura.Teclado();
+        telaMinhaArea(usuarioLogado);
     }
 
     private String validarNome(){

@@ -1,4 +1,4 @@
-package aed3;
+package aed3.aed3;
 
 public interface InterfaceRegistro {
 

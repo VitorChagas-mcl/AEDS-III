@@ -25,7 +25,7 @@ public class Main{
                 op = Leitura.Teclado().trim().toUpperCase();
                 switch(op){
                     case "A":
-                        System.out.println("Tela do Usuario");
+                        menuUser.telaMinhaArea(usuarioLogado);
                         break;
 
                     case "B":
