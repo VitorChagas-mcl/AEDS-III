@@ -29,7 +29,7 @@ public class Usuario implements InterfaceRegistro {
         this.email = email;
         this.hashSenha = hashSenha.hashCode();
         this.perguntaSecreta = perguntaSecreta;
-        this.hashRespostaSecreta = hashRespostaSecreta.trim().toLowerCase().hashCode();
+        this.hashRespostaSecreta = normalizarResposta(hashRespostaSecreta).hashCode();
     }
 
     public Usuario(int idUsuario, String nome, String email, int hashSenha, String perguntaSecreta, int hashRespostaSecreta) {
@@ -87,10 +87,9 @@ public class Usuario implements InterfaceRegistro {
         return hashRespostaSecreta;
     }
 
-    public void setHashRespostaSecreta(String hashRespostaSecreta) {
-        String resposataNormalizada = tirarAcentos(hashRespostaSecreta);
-        this.hashRespostaSecreta = resposataNormalizada.toLowerCase().trim().hashCode();
-    }
+    public void setHashRespostaSecreta(String resposta) {
+        this.hashRespostaSecreta = normalizarResposta(resposta).hashCode();
+    }      
 
     public static String tirarAcentos(String texto) { 
         if (texto == null) { 
@@ -99,6 +98,10 @@ public class Usuario implements InterfaceRegistro {
         String normalizado = Normalizer.normalize( texto, Normalizer.Form.NFD ); 
         return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalizado).replaceAll(""); 
     }
+
+    public static String normalizarResposta(String resposta) {
+        return tirarAcentos(resposta).trim().toLowerCase();
+    }   
 
     @Override
     public byte[] serialize() throws IOException {
