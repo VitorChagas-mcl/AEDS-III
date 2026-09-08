@@ -48,18 +48,26 @@ public class MenuUser {
         System.out.println("\n\nLOGIN");
         System.out.println("-----");
         System.out.print("\nLogin (vazio cancela): ");
-        login = Leitura.Teclado().trim();
+        login = Leitura.Teclado().trim().toLowerCase();
         if(login.isEmpty()) return null;
         System.out.print("\nSenha (vazio cancela): ");
         senha = Leitura.Teclado().trim();
         if(senha.isEmpty()) return null;
 
         try{
+            Usuario usuario = arqUsuario.readByEmail(login);
 
+            if(usuario != null){
+                if(usuario.getHashSenha() == senha.hashCode()){
+                    System.out.println("Login feito com sucesso!");
+                    return usuario;
+                }
+            }
         }catch (Exception e){
             System.out.println("Erro ao fazer login: " + e.getMessage());
+            return null;
         }
-        System.out.println("Email ou senha incorretos, tente novamente.");
+        System.out.println("Credenciais inválidas.");
         return null;
     }
 

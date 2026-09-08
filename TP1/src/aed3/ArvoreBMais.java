@@ -11,7 +11,7 @@
  * Implementado pelo Prof. Marcos Kutova
  * v2.1 - 2026
  */
-package aed3.aed3;
+package aed3;
 
 import java.io.*;
 import java.lang.reflect.Constructor;

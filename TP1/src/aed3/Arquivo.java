@@ -1,4 +1,4 @@
-package aed3.aed3;
+package aed3;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;

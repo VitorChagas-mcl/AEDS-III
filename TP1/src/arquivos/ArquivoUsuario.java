@@ -34,7 +34,7 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
         boolean emailNovo = !usuarioAntigo.getEmail().equalsIgnoreCase(usuarioNovo.getEmail());
         if(emailNovo && this.readByEmail(usuarioNovo.getEmail()) != null)
             throw new Exception("Email já cadastrado.");
-        if(super.update(usuarioAntigo)){
+        if(super.update(usuarioNovo)){
             if(emailNovo){
                 hashEmail.delete(ParIdEmail.hash(usuarioAntigo.getEmail()));
                 hashEmail.create(new ParIdEmail(usuarioNovo.getId(), usuarioNovo.getEmail()));
