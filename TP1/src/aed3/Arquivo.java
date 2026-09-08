@@ -3,8 +3,6 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
-import entidades.Usuario;
-
 public class Arquivo<T extends aed3.InterfaceRegistro> {
     
     RandomAccessFile arquivo; // Arquivo de dados para armazenar registros das entidades
@@ -440,11 +438,5 @@ public class Arquivo<T extends aed3.InterfaceRegistro> {
         indiceID.close();
         arquivo.close();
     }
-
-    public boolean Update(Usuario usuarioNovo) throws Exception {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'Update'");
-    }
-
 
 }

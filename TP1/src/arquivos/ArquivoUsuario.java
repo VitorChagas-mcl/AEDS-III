@@ -8,7 +8,7 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
 
     public ArquivoUsuario() throws Exception  {
         super("Usuario", Usuario.class.getConstructor());
-        this.hashEmail = new HashExtensivel<>(ParIdEmail.class.getConstructor(), 4, "./dados/Usuario/indiceEmail.diretorio.db", "./dados/Usuario/indiceEmail.cestos.db");
+        this.hashEmail = new HashExtensivel<>(ParIdEmail.class.getConstructor(), 4, "./dados/Usuario/indiceID.diretorio.db", "./dados/Usuario/indiceID.cestos.db");
     }
 
     @Override
