@@ -12,20 +12,18 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
 
     public ArquivoPergunta() throws Exception {
         super("Pergunta", Pergunta.class.getConstructor());
-        this.IndiceUsuarioPergunta = new ArvoreBMais<ParIdUsuarioPergunta>(ParIdUsuarioPergunta.class.getConstructor(),
-                5, "./dados/Pergunta/indiceID.diretorio.db");
+        IndiceUsuarioPergunta = new ArvoreBMais<ParIdUsuarioPergunta>(ParIdUsuarioPergunta.class.getConstructor(),
+                5, "./dados/Pergunta/indicePergunta.diretorio.db");
     }
 
     @Override
-    public int create(Pergunta Pergunta) throws Exception {
-        int id = super.create(Pergunta);
-        this.IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(Pergunta.getIdUsuario(), id));
+    public int create(Pergunta pergunta) throws Exception {
+        int id = super.create(pergunta);
+        IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(pergunta.getIdUsuario(), id));
         return id;
     }
 
     public ArrayList<Pergunta> readByUsuarioPerguntas(int idUsuario) throws Exception {
-        if (idUsuario == -1)
-            return null;
         ArrayList<Pergunta> perguntas = new ArrayList<>();
         ArrayList<ParIdUsuarioPergunta> perguntasIndice = IndiceUsuarioPergunta.read(null);
         for (ParIdUsuarioPergunta par : perguntasIndice) {

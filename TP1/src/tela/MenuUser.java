@@ -2,14 +2,18 @@ package tela;
 
 import arquivos.ArquivoUsuario;
 import auxiliar.Leitura;
+import entidades.Pergunta;
 import entidades.Usuario;
+import tela.MenuPergunta;
 
 public class MenuUser {
 
     private ArquivoUsuario arqUsuario;
+    private MenuPergunta menuPergunta;
 
     public MenuUser() throws Exception {
         arqUsuario = new ArquivoUsuario();
+        menuPergunta = new MenuPergunta();
     }
 
     public Usuario telaInicio() {
@@ -181,7 +185,7 @@ public class MenuUser {
         }
     }
 
-    public void telaMinhaArea(Usuario usuarioLogado) {
+    public void telaMinhaArea(Usuario usuarioLogado) throws Exception {
         String op;
         do {
             System.out.println("\n\nAJUDA AÍ 1.0");
@@ -195,15 +199,14 @@ public class MenuUser {
             System.out.print("\nOpção: ");
             op = Leitura.Teclado().trim().toUpperCase();
 
-            switch(op){
+            switch (op) {
                 case "A":
                     telaMeusDados(usuarioLogado);
                     break;
 
                 case "B":
-                    telaMinhasPerguntas(usuarioLogado);
+                    menuPergunta.telaMinhasPerguntas(usuarioLogado);
                     break;
-
                 case "C":
                     System.out.println("Tela de Minhas respostas");
                     break;
@@ -217,7 +220,7 @@ public class MenuUser {
                     break;
 
                 default:
-                    System.out.println("Digite uma opção valida");
+                    System.out.println("Digite uma opção válida");
                     break;
             }
         } while (!op.equals("R"));
@@ -236,8 +239,8 @@ public class MenuUser {
             System.out.println("\n(R) Retornar ao menu anterior");
             System.out.print("\nOpção: ");
             op = Leitura.Teclado().trim().toUpperCase();
-            
-            switch(op){
+
+            switch (op) {
                 case "A":
                     telaAlterarNome(usuarioLogado);
                     break;
@@ -265,13 +268,13 @@ public class MenuUser {
         } while (!op.equals("R"));
     }
 
-    public void telaAlterarNome(Usuario usuarioLogado){
-        try{
+    public void telaAlterarNome(Usuario usuarioLogado) {
+        try {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
             System.out.println("\n> Inicio > Minha área > Meus dados > Alterar Nome");
 
-            if(usuarioLogado == null){
+            if (usuarioLogado == null) {
                 System.out.println("\nErro ao encontrar usuario");
                 return;
             }
@@ -279,58 +282,58 @@ public class MenuUser {
             System.out.print("\nDigite o novo nome: ");
             String novoNome = validarNome();
             System.out.println("\nDeseja alterar seu nome: (S/N)");
-            if(!Leitura.Teclado().trim().equalsIgnoreCase("S")){
+            if (!Leitura.Teclado().trim().equalsIgnoreCase("S")) {
                 System.out.println("Alteração cancelada");
                 return;
             }
             usuarioLogado.setNome(novoNome);
             boolean sucesso = arqUsuario.update(usuarioLogado);
-            if(sucesso)
+            if (sucesso)
                 System.out.println("Nome alterado com sucesso!");
             else
                 System.out.println("Erro ao alterar nome!");
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
         }
     }
 
     public void telaAlterarEmail(Usuario usuarioLogado) {
-        try{
+        try {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
             System.out.println("\n> Inicio > Minha área > Meus dados > Alterar email");
 
-            if(usuarioLogado == null){
+            if (usuarioLogado == null) {
                 System.out.println("\nErro ao encontrar usuario");
                 return;
             }
 
             System.out.print("\nDigite o novo email: ");
-            String novoEmail = validarEmail();    
+            String novoEmail = validarEmail();
 
             System.out.println("\nDeseja alterar seu email: (S/N)");
-            if(!Leitura.Teclado().trim().equalsIgnoreCase("S")){
+            if (!Leitura.Teclado().trim().equalsIgnoreCase("S")) {
                 System.out.println("Alteração cancelada");
                 return;
             }
             usuarioLogado.setEmail(novoEmail);
             boolean sucesso = arqUsuario.update(usuarioLogado);
-            if(sucesso)
+            if (sucesso)
                 System.out.println("Email alterado com sucesso!");
             else
                 System.out.println("Erro ao alterar Email!");
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
         }
     }
 
     public void telaAlterarSenha(Usuario usuarioLogado) {
-        try{
+        try {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
             System.out.println("\n> Inicio > Minha área > Meus dados > Alterar senha");
 
-            if(usuarioLogado == null){
+            if (usuarioLogado == null) {
                 System.out.println("\nErro ao encontrar usuario");
                 return;
             }
@@ -338,29 +341,30 @@ public class MenuUser {
             System.out.print("\nDigite o novo senha: ");
             String novaSenha = validarSenha();
             System.out.println("Deseja alterar sua senha: (S/N)");
-            if(!Leitura.Teclado().trim().equalsIgnoreCase("S")){
+            if (!Leitura.Teclado().trim().equalsIgnoreCase("S")) {
                 System.out.println("Alteração cancelada");
                 return;
             }
             usuarioLogado.setHashSenha(novaSenha);
             boolean sucesso = arqUsuario.update(usuarioLogado);
-            if(sucesso)
+            if (sucesso)
                 System.out.println("Senha alterado com sucesso!");
             else
                 System.out.println("Erro ao alterar senha!");
 
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
         }
     }
 
     public void telaAlterarPerguntaResposta(Usuario usuarioLogado) {
-        try{
+        try {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
-            System.out.println("\n> Inicio > Minha área > Meus dados > Alterar pergunta e resposta de recuperação de senha");
+            System.out.println(
+                    "\n> Inicio > Minha área > Meus dados > Alterar pergunta e resposta de recuperação de senha");
 
-            if(usuarioLogado == null){
+            if (usuarioLogado == null) {
                 System.out.println("\nErro ao encontrar usuario");
                 return;
             }
@@ -391,32 +395,21 @@ public class MenuUser {
             System.out.println("Digite uma nova resposta secreta: ");
             String novaRespostaHash = validarResposta();
             System.out.println("\nDeseja alterar sua pergunta e sua resposta secreta: (S/N)");
-            if(Leitura.Teclado().trim().equalsIgnoreCase("S")){
+            if (Leitura.Teclado().trim().equalsIgnoreCase("S")) {
                 System.out.println("Alteração cancelada");
                 return;
             }
             usuarioLogado.setPerguntaSecreta(novaPergunta);
             usuarioLogado.setHashRespostaSecreta(novaRespostaHash);
             boolean sucesso = arqUsuario.update(usuarioLogado);
-            if(sucesso)
+            if (sucesso)
                 System.out.println("Pergunta e resposta alterado com sucesso!");
             else
                 System.out.println("Erro ao alterar nome!");
-            
-        }catch(Exception e){
+
+        } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
         }
-    }
-
-
-    public void telaMinhasPerguntas(Usuario usuarioLogado) {
-        System.out.println("\n\nAJUDA AÍ 1.0");
-        System.out.println("------------");
-        System.out.println("\nMINHAS PERGUNTAS");
-
-        System.out.println("Pressione qualquer tecla para continuar...");
-        Leitura.Teclado();
-        telaMinhaArea(usuarioLogado);
     }
 
     private String validarNome() {

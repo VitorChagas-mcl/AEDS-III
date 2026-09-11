@@ -5,25 +5,40 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-
-
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import aed3.InterfaceRegistro;
 
-public class Pergunta implements InterfaceRegistro{
+public class Pergunta implements InterfaceRegistro {
     private int idPergunta;
     private int idUsuario;
-    private long criacao; //atributo para salvar a data e hora da criação da pergunta em milissegundos
-    private long alteracao; //mesma coisa de cima, porem para alteração da mesma
-    private short nota; //nota da pergunta(soma das notas dadas por outros usuarios) pode ser negativa 
+    private long criacao; // atributo para salvar a data e hora da criação da pergunta em milissegundos
+    private long alteracao; // mesma coisa de cima, porem para alteração da mesma
+    private short nota; // nota da pergunta(soma das notas dadas por outros usuarios) pode ser negativa
     private String pergunta;
-    private String palavrasChave; //lista de termos separados por ";", usados para busca
-    private boolean ativa; //perguntas arquivadas tem que ter esse atributo como false(considerando que elas não podem ser excluidas, apenas arquivadas)
+    private String palavrasChave; // lista de termos separados por ";", usados para busca
+    private boolean ativa; // perguntas arquivadas tem que ter esse atributo como false(considerando que
+                           // elas não podem ser excluidas, apenas arquivadas)
 
-    public Pergunta(){
-        this(-1, -1, 0L, 0L, (short)0, "", "", true);
+    public Pergunta() {
+        this(-1, -1, 0L, 0L, (short) 0, "", "", true);
+    }
+    public Pergunta(int idUsuario, long criacao, long alteracao, short nota, String pergunta,
+            String palavrasChave, boolean ativa) {
+        this.idPergunta = -1;
+        this.idUsuario = idUsuario;
+        this.criacao = criacao;
+        this.alteracao = alteracao;
+        this.nota = nota;
+        this.pergunta = pergunta;
+        this.palavrasChave = palavrasChave;
+        this.ativa = ativa;
     }
 
-    public Pergunta(int idPergunta, int idUsuario, long criacao, long alteracao, short nota, String pergunta, String palavrasChave, boolean ativa){
+
+    public Pergunta(int idPergunta, int idUsuario, long criacao, long alteracao, short nota, String pergunta,
+            String palavrasChave, boolean ativa) {
         this.idPergunta = idPergunta;
         this.idUsuario = idUsuario;
         this.criacao = criacao;
@@ -38,6 +53,7 @@ public class Pergunta implements InterfaceRegistro{
     public int getId() {
         return idPergunta;
     }
+
     @Override
     public void setId(int idPergunta) {
         this.idPergunta = idPergunta;
@@ -54,7 +70,7 @@ public class Pergunta implements InterfaceRegistro{
     public long getCriacao() {
         return criacao;
     }
-    
+
     public void setCriacao(long criacao) {
         this.criacao = criacao;
     }
@@ -91,7 +107,7 @@ public class Pergunta implements InterfaceRegistro{
         this.palavrasChave = palavrasChave;
     }
 
-    public boolean getAtiva(){
+    public boolean getAtiva() {
         return ativa;
     }
 
@@ -128,11 +144,19 @@ public class Pergunta implements InterfaceRegistro{
         ativa = dis.readBoolean();
     }
 
+    private static final DateTimeFormatter FORMATADOR_BR = 
+        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+                         .withZone(ZoneId.of("America/Sao_Paulo"));
     @Override
-    public String toString() { //Junto às perguntas, precisaremos imprimir um num relacionado, já que elas serão exibidas sequencialmente
-        return " " + ativa + 
-               "\n" + criacao +
-               "\n" + pergunta +
-               "\nPalavras chave: " + palavrasChave;
+    public String toString() {
+        String dataFormatada = FORMATADOR_BR.format(Instant.ofEpochMilli(criacao));
+        String status = !this.ativa ? " (Arquivada)" : "";
+        // Junto às perguntas, precisaremos imprimir um num relacionado, já que elas
+        // serão exibidas sequencialmente {
+        return "(" + idPergunta + ")" + status +
+                "\n" + dataFormatada +
+                "\n" + pergunta +
+                "\nPalavras chave: " + palavrasChave +
+                "\n";
     }
 }

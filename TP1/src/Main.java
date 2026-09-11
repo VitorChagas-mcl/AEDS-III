@@ -1,19 +1,20 @@
 import auxiliar.Leitura;
 import tela.MenuUser;
 import entidades.Usuario;
-public class Main{
-    public static void main(String[] args){
-        try{
+
+public class Main {
+    public static void main(String[] args) {
+        try {
             MenuUser menuUser = new MenuUser();
-            
+
             Usuario usuarioLogado = menuUser.telaInicio();
-            if(usuarioLogado == null){
-                System.out.println("Saindo...");
+            if (usuarioLogado == null) {
+                System.out.println("Até logo!...");
                 return;
             }
 
             String op;
-            do{
+            do {
                 System.out.println("\n\nAJUDA AÍ 1.0");
                 System.out.println("------------");
                 System.out.println("\n > Inicio");
@@ -23,7 +24,7 @@ public class Main{
                 System.out.print("\nOpção: ");
 
                 op = Leitura.Teclado().trim().toUpperCase();
-                switch(op){
+                switch (op) {
                     case "A":
                         menuUser.telaMinhaArea(usuarioLogado);
                         break;
@@ -40,8 +41,8 @@ public class Main{
                         System.out.println("Digite uma opção valida");
                         break;
                 }
-            }while(!op.equalsIgnoreCase("S"));
-        }catch(Exception e){
+            } while (!op.equalsIgnoreCase("S"));
+        } catch (Exception e) {
             System.out.println("Erro do sistema: " + e);
             e.printStackTrace();
         }
