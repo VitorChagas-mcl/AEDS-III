@@ -130,8 +130,7 @@ public class Usuario implements InterfaceRegistro {
 
     @Override
     public String toString() {
-        return "\nID: " + idUsuario +
-               "\nNome: " + nome +
+        return "\nNome: " + nome +
                "\nEmail: " + email +
                "\nPergunta: " + perguntaSecreta;
     }

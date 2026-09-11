@@ -69,13 +69,12 @@ public class MenuPergunta {
             Pergunta novaPergunta = new Pergunta(usuarioLogado.getId(), System.currentTimeMillis(),
                     System.currentTimeMillis(), (short) 0, pergunta, palavrasChave, true);
             int idPergunta = arqPergunta.create(novaPergunta);
-            System.out.println(idPergunta);
             if (idPergunta != -1) {
-                System.out.println("Pergunta cadastrada com sucesso! ID: " + idPergunta);
+                System.out.println("Pergunta cadastrada com sucesso!");
             } else {
                 System.out.println("Erro ao cadastrar pergunta!");
             }
-            System.out.println("Pressione qualquer tecla para continuar...");
+            System.out.println("\nPressione qualquer tecla para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
@@ -89,7 +88,7 @@ public class MenuPergunta {
             System.out.println("------------");
             System.out.println("\nMINHAS PERGUNTAS");
             if (perguntas.isEmpty()) {
-                System.out.println("Nenhuma pergunta cadastrada!");
+                System.out.println("Nenhuma pergunta cadastrada!\n");
             } else {
                 System.out.println("Perguntas cadastradas:");
                 for (Pergunta p : perguntas) {
@@ -132,7 +131,7 @@ public class MenuPergunta {
                     }
                 }
             }
-            System.out.println("Pressione qualquer tecla para continuar...");
+            System.out.println("\nPressione qualquer tecla para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
@@ -149,10 +148,11 @@ public class MenuPergunta {
                     System.out.println(p.toString());
                 }
             }
-            System.out.print("Digite o ID da pergunta que deseja atualizar: ");
+            
+            System.out.print("Digite o ID da pergunta que deseja atualizar: (vazio cancela)");
             int idPergunta = Integer.parseInt(Leitura.Teclado());
             Pergunta pergunta = arqPergunta.read(idPergunta);
-            if (pergunta == null) {
+            if (pergunta == null || !pergunta.getAtiva()) {
                 System.out.println("Pergunta não encontrada!");
             } else {
                 if (pergunta.getIdUsuario() != usuarioLogado.getId()) {
@@ -177,7 +177,7 @@ public class MenuPergunta {
                     }
                 }
             }
-            System.out.println("Pressione qualquer tecla para continuar...");
+            System.out.println("\nPressione qualquer tecla para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());

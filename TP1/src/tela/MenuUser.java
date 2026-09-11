@@ -232,6 +232,8 @@ public class MenuUser {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
             System.out.println("\n> Inicio > Minha área > Meus dados");
+
+            System.out.println(usuarioLogado.toString());
             System.out.println("\n(A) Alterar Nome");
             System.out.println("(B) Alterar Email");
             System.out.println("(C) Alterar senha");

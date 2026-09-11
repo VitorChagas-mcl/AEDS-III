@@ -7,7 +7,7 @@ public class Arquivo<T extends aed3.InterfaceRegistro> {
     
     RandomAccessFile arquivo; // Arquivo de dados para armazenar registros das entidades
     HashExtensivel<ParIDEndereco> indiceID; // Índice direto baseado no ID da entidade 
-    String nomeEntidade; // Nome da entidade associada ao arquivo  
+    String nomeEntidade; // Nome da entidade associada ao arquivo 
     Constructor<T> construtor; // Construtor da entidade para criar instâncias durante a leitura  
     final int TAMANHO_CABECALHO = 12; // Tamanho do cabeçalho do arquivo (4 bytes para ultimoId + 8 bytes para primeiroLivre)
 
@@ -29,11 +29,11 @@ public class Arquivo<T extends aed3.InterfaceRegistro> {
         }
         this.nomeEntidade = nomeEntidade;
         this.construtor = construtor;
-        arquivo = new RandomAccessFile("./dados/" + nomeEntidade + "/arquivo.db", "rw");
+        arquivo = new RandomAccessFile("./dados/" + nomeEntidade + "/" + nomeEntidade +".db", "rw");
         indiceID = new HashExtensivel<>(ParIDEndereco.class.getConstructor(), 
             4,
-            "./dados/" + nomeEntidade + "/indiceID.diretorio.db",
-            "./dados/" + nomeEntidade + "/indiceID.cestos.db");
+            "./dados/" + nomeEntidade + "/"+ nomeEntidade +".diretorio.db",
+            "./dados/" + nomeEntidade + "/" + nomeEntidade +".cestos.db");
         if(arquivo.length()<12) {
             arquivo.writeInt(0); // ultimoId: id do último registro criado
             arquivo.writeLong(-1); // primeiroLivre: posição do primeiro slot livre
