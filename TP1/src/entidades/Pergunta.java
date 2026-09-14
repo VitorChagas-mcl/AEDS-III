@@ -24,6 +24,7 @@ public class Pergunta implements InterfaceRegistro {
     public Pergunta() {
         this(-1, -1, 0L, 0L, (short) 0, "", "", true);
     }
+    
     public Pergunta(int idUsuario, long criacao, long alteracao, short nota, String pergunta,
             String palavrasChave, boolean ativa) {
         this.idPergunta = -1;

@@ -2,9 +2,7 @@ package tela;
 
 import arquivos.ArquivoUsuario;
 import auxiliar.Leitura;
-import entidades.Pergunta;
 import entidades.Usuario;
-import tela.MenuPergunta;
 
 public class MenuUser {
 

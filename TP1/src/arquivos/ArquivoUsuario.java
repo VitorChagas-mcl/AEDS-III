@@ -1,6 +1,7 @@
 package arquivos;
 
 import aed3.HashExtensivel;
+import aed3.ParIdEmail;
 import entidades.Usuario;
 
 public class ArquivoUsuario extends aed3.Arquivo<Usuario> {

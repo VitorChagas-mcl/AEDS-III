@@ -1,8 +1,6 @@
-package arquivos;
+package aed3;
 
 import java.io.*;
-
-import aed3.InterfaceHashExtensivel;
 
 public class ParIdEmail implements InterfaceHashExtensivel {
     private int id;
