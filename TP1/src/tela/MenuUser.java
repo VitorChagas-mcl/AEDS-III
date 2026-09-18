@@ -75,7 +75,7 @@ public class MenuUser {
         }
 
         System.out.println("Credenciais inválidas.");
-        return null;
+        return telaInicio();
     }
 
     public void telaNovoUsuario() {

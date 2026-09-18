@@ -25,7 +25,7 @@ public class MenuPergunta {
             System.out.println("\n(A) Incluir pergunta");
             System.out.println("(B) Listar minhas perguntas");
             System.out.println("(C) Alterar Pergunta");
-            System.out.println("(D) Excluir Pergunta");
+            System.out.println("(D) Arquivar Pergunta");
             System.out.println("\n(R) Retornar ao menu anterior");
             System.out.print("\nOpção: ");
             op = Leitura.Teclado().trim().toUpperCase();
@@ -43,7 +43,7 @@ public class MenuPergunta {
                     break;
 
                 case "D":
-                    telaApagarPergunta(usuarioLogado, perguntas);
+                    telaArquivarPergunta(usuarioLogado, perguntas);
                     break;
 
                 case "R":
@@ -74,7 +74,7 @@ public class MenuPergunta {
             } else {
                 System.out.println("Erro ao cadastrar pergunta!");
             }
-            System.out.println("\nPressione qualquer tecla para continuar...");
+            System.out.println("\nPressione enter tecla para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
@@ -95,7 +95,7 @@ public class MenuPergunta {
                     System.out.println(p.toString());
                 }
             }
-            System.out.println("Pressione qualquer tecla para continuar...");
+            System.out.println("Pressione enter tecla para continuar...");
             Leitura.Teclado();
             telaMinhasPerguntas(usuarioLogado);
         } catch (Exception e) {
@@ -103,35 +103,35 @@ public class MenuPergunta {
         }
     }
 
-    public void telaApagarPergunta(Usuario usuarioLogado, ArrayList<Pergunta> perguntas) throws Exception {
+    public void telaArquivarPergunta(Usuario usuarioLogado, ArrayList<Pergunta> perguntas) throws Exception {
         try {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
-            System.out.println("\nAPAGAR PERGUNTA");
+            System.out.println("\nARQUIVAR PERGUNTA");
             System.out.println("Perguntas: ");
             for (Pergunta p : perguntas) {
                 if (p.getAtiva() == true) {
                     System.out.println(p.toString());
                 }
             }
-            System.out.print("Digite o ID da pergunta que deseja apagar: ");
+            System.out.print("Digite o ID da pergunta que deseja arquivar: ");
             int idPergunta = Integer.parseInt(Leitura.Teclado());
             Pergunta pergunta = arqPergunta.read(idPergunta);
             if (pergunta == null) {
                 System.out.println("Pergunta não encontrada!");
             } else {
                 if (pergunta.getIdUsuario() != usuarioLogado.getId()) {
-                    System.out.println("Você não tem permissão para apagar essa pergunta!");
+                    System.out.println("Você não tem permissão para arquivar essa pergunta!");
                 } else {
                     pergunta.setAtiva(false);
                     if (arqPergunta.update(pergunta)) {
-                        System.out.println("Pergunta apagada com sucesso!");
+                        System.out.println("Pergunta arquivada com sucesso!");
                     } else {
-                        System.out.println("Erro ao apagar pergunta!");
+                        System.out.println("Erro ao arquivar pergunta!");
                     }
                 }
             }
-            System.out.println("\nPressione qualquer tecla para continuar...");
+            System.out.println("\nPressione enter para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
@@ -149,7 +149,7 @@ public class MenuPergunta {
                 }
             }
             
-            System.out.print("Digite o ID da pergunta que deseja atualizar: (vazio cancela)");
+            System.out.print("Digite o ID da pergunta que deseja atualizar (vazio cancela): ");
             int idPergunta = Integer.parseInt(Leitura.Teclado());
             Pergunta pergunta = arqPergunta.read(idPergunta);
             if (pergunta == null || !pergunta.getAtiva()) {
@@ -177,7 +177,7 @@ public class MenuPergunta {
                     }
                 }
             }
-            System.out.println("\nPressione qualquer tecla para continuar...");
+            System.out.println("\nPressione enter tecla para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
