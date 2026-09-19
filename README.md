@@ -200,6 +200,11 @@ java -cp bin Main
 ```
 ## Video do projeto: 
 
+<video controls src="TP1/doc/vidoeTP1.mp4" title="Title"></video>
+
+LINK [https://youtu.be/GYvgLcf77M8](https://youtu.be/GYvgLcf77M8)
+
+
 ## Observações
 
 - O sistema usa arquivos locais em `dados/` para persistir os registros e os índices.
