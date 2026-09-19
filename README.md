@@ -29,6 +29,42 @@ A aplicação foi organizada em camadas para separar:
 
 ## Prints do Projeto: 
 
+### `Tela Inicio`
+![TelaInicialLogin](TP1/doc/telaInicialLogin.png)
+
+### `Tela Login`
+![Login](TP1/doc/login.png)
+
+### `Tela Cadastro`
+![Cadastro](TP1/doc/Cadastro.png)
+
+### `Tela De Recuperação de Senha`
+![Recuperar Senha](TP1/doc/recuperarSenha.png)
+
+### `Tela Inicial`
+![Inicio](TP1/doc/inicio.png)
+
+### `Tela Minhas Área`
+![Minha Area](TP1/doc/minhaArea.png)
+
+### `Tela Meus Dados`
+![Meus Dados](TP1/doc/meusDados.png)
+
+### `Tela Minhas Perguntas`
+![Tela Pergunta](TP1/doc/minhasPerguntas.png)
+
+### `Tela de Cadastro de Pergunta`
+![Crud Pergunta](TP1/doc/cadastroPergunta.png)
+
+### `Tela de Listar de Pergunta`
+![Lista Pergunta](TP1/doc/listarPergunta.png)
+
+### `Tela de Atulizar de Pergunta`
+![Atualizar Pergunta](TP1/doc/atualizarPergunta.png)
+
+### `Tela de Arquivar de Pergunta`
+![Arquivar Pergunta](TP1/doc/arquivarPergunta.png)
+
 ## Estrutura do projeto
 
 ```text
