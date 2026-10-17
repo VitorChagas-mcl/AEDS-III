@@ -24,7 +24,7 @@ public class ArquivoUsuario extends aed3.Arquivo<Usuario> {
     }
 
     public Usuario readByEmail(String email) throws Exception {
-
+        
         ParIdEmail par = hashEmail.read(ParIdEmail.hash(email));
         if (par == null)
             return null;

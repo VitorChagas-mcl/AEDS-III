@@ -1,6 +1,7 @@
 package arquivos;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import aed3.ArvoreBMais;
 import entidades.Pergunta;
@@ -39,6 +40,24 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
                 }
             }
         }
+        return perguntas;
+    }
+
+    public ArrayList<Pergunta> readPerguntasRecentes() throws Exception {
+        ArrayList<Pergunta> perguntas = new ArrayList<>();
+        ArrayList<ParIdPerguntaData> perguntasIndice = IndicePerguntaData.read(null);
+
+        for (ParIdPerguntaData par : perguntasIndice) {
+            Pergunta pergunta = super.read(par.getIdPergunta());
+            if (pergunta != null && pergunta.getAtiva()) {
+                perguntas.add(pergunta);
+            }
+        }
+
+        perguntas.sort(Comparator
+                .comparingLong(Pergunta::getCriacao)
+                .reversed()
+                .thenComparing(Comparator.comparingInt(Pergunta::getId).reversed()));
         return perguntas;
     }
 

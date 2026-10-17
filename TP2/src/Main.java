@@ -1,5 +1,6 @@
 import auxiliar.Leitura;
 import tela.MenuUser;
+import tela.MenuResposta;
 import entidades.Usuario;
 
 public class Main {
@@ -30,7 +31,7 @@ public class Main {
                         break;
 
                     case "B":
-                        System.out.println("Tela de Perguntas");
+                        new MenuResposta(usuarioLogado).telaBuscarPergunta();
                         break;
 
                     case "S":

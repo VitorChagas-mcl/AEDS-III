@@ -41,9 +41,10 @@ public class ParIdPerguntaData implements InterfaceArvoreBMais<ParIdPerguntaData
 
     @Override
     public int compareTo(ParIdPerguntaData obj) {
-        if (this.idPergunta != obj.idPergunta)
-            return Integer.compare(this.idPergunta, obj.idPergunta);
-        return Long.compare(this.data, obj.data);
+        int comparacaoData = Long.compare(obj.data, this.data);
+        if (comparacaoData != 0)
+            return comparacaoData;
+        return Integer.compare(obj.idPergunta, this.idPergunta);
     }
 
     @Override
