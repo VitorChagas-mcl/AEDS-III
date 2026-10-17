@@ -5,21 +5,26 @@ import java.util.ArrayList;
 import aed3.ArvoreBMais;
 import entidades.Pergunta;
 import aed3.ParIdUsuarioPergunta;
+import aed3.ParIdPerguntaData;
 
 public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
 
     private ArvoreBMais<ParIdUsuarioPergunta> IndiceUsuarioPergunta;
+    private ArvoreBMais<ParIdPerguntaData> IndicePerguntaData;
 
     public ArquivoPergunta() throws Exception {
         super("Pergunta", Pergunta.class.getConstructor());
         IndiceUsuarioPergunta = new ArvoreBMais<ParIdUsuarioPergunta>(ParIdUsuarioPergunta.class.getConstructor(),
                 5, "./dados/Pergunta/indicePergunta.diretorio.db");
+        IndicePerguntaData = new ArvoreBMais<ParIdPerguntaData>(ParIdPerguntaData.class.getConstructor(),
+                5, "./dados/Pergunta/indicePerguntaData.diretorio.db");
     }
 
     @Override
     public int create(Pergunta pergunta) throws Exception {
         int id = super.create(pergunta);
         IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(pergunta.getIdUsuario(), id));
+        IndicePerguntaData.create(new ParIdPerguntaData(id, pergunta.getCriacao()));
         return id;
     }
 
@@ -36,6 +41,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         }
         return perguntas;
     }
+
 
     @Override
     public boolean update(Pergunta PerguntaNova) throws Exception {
@@ -71,6 +77,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         }
         if (super.delete(idPergunta)) {
             this.IndiceUsuarioPergunta.delete(new ParIdUsuarioPergunta(Pergunta.getIdUsuario(), idPergunta));
+            this.IndicePerguntaData.delete(new ParIdPerguntaData(idPergunta, Pergunta.getCriacao()));
             Pergunta.setAtiva(false);
             return true;
         }
