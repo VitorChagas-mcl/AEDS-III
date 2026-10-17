@@ -74,7 +74,7 @@ public class MenuPergunta {
             } else {
                 System.out.println("Erro ao cadastrar pergunta!");
             }
-            System.out.println("\nPressione enter tecla para continuar...");
+            System.out.println("\nPressione enter para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
@@ -97,7 +97,7 @@ public class MenuPergunta {
                     i++;
                 }
             }
-            System.out.println("Pressione enter tecla para continuar...");
+            System.out.println("Pressione enter para continuar...");
             Leitura.Teclado();
             telaMinhasPerguntas(usuarioLogado);
         } catch (Exception e) {
@@ -183,7 +183,7 @@ public class MenuPergunta {
                     }
                 }
             }
-            System.out.println("\nPressione enter tecla para continuar...");
+            System.out.println("\nPressione enter para continuar...");
             Leitura.Teclado();
         } catch (Exception e) {
             System.out.print("erro: " + e.getMessage());
