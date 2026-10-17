@@ -17,14 +17,25 @@ public class Resposta implements InterfaceRegistro {
     private short avaliacoes;
     private boolean ativa;
 
+
     public Resposta() {
-        this.ativa = true;
-        this.nota = 0;
-        this.avaliacoes = 0;
+        this(-1, -1, -1, 0L, "", (short) 0, (short) 0, true);
+    }
+
+    public Resposta(int idPergunta, int idUsuario, long criacao,
+        String resposta, short nota, short avaliacoes, boolean ativa) {
+        this.idResposta = -1;
+        this.idPergunta = idPergunta;
+        this.idUsuario = idUsuario;
+        this.criacao = criacao;
+        this.resposta = resposta;
+        this.nota = nota;
+        this.avaliacoes = avaliacoes;
+        this.ativa = ativa;
     }
 
     public Resposta(int idResposta, int idPergunta, int idUsuario, long criacao,
-                    String resposta, short nota, short avaliacoes, boolean ativa) {
+        String resposta, short nota, short avaliacoes, boolean ativa) {
         this.idResposta = idResposta;
         this.idPergunta = idPergunta;
         this.idUsuario = idUsuario;
