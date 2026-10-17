@@ -48,6 +48,10 @@ public class ParIdEmail implements InterfaceHashExtensivel {
         DataOutputStream dos = new DataOutputStream(baos);
         dos.writeInt(this.id);
         dos.writeUTF(this.email);
+        int bytesRestantes = this.TAMANHO - baos.size();
+        if (bytesRestantes < 0)
+            throw new IOException("E-mail maior que o tamanho reservado.");
+        dos.write(new byte[bytesRestantes]);
         return baos.toByteArray();
     }
 
