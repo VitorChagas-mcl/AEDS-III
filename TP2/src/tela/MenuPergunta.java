@@ -91,8 +91,10 @@ public class MenuPergunta {
                 System.out.println("Nenhuma pergunta cadastrada!\n");
             } else {
                 System.out.println("Perguntas cadastradas:");
+                int i = 1;
                 for (Pergunta p : perguntas) {
-                    System.out.println(p.toString());
+                    System.out.println("( "+ i +" ) " + p.toString());
+                    i++;
                 }
             }
             System.out.println("Pressione enter tecla para continuar...");
@@ -109,10 +111,12 @@ public class MenuPergunta {
             System.out.println("------------");
             System.out.println("\nARQUIVAR PERGUNTA");
             System.out.println("Perguntas: ");
+            int i = 1;
             for (Pergunta p : perguntas) {
                 if (p.getAtiva() == true) {
-                    System.out.println(p.toString());
+                    System.out.println("( "+ i +" ) " + p.toString());      
                 }
+                i++;
             }
             System.out.print("Digite o ID da pergunta que deseja arquivar: ");
             int idPergunta = Integer.parseInt(Leitura.Teclado());
@@ -143,10 +147,12 @@ public class MenuPergunta {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
             System.out.println("\nATUALIZAR PERGUNTA");
+            int i = 1;
             for (Pergunta p : perguntas) {
                 if (p.getAtiva() == true) {
-                    System.out.println(p.toString());
+                    System.out.println("( "+ i +" ) " + p.toString());
                 }
+                i++;
             }
             
             System.out.print("Digite o ID da pergunta que deseja atualizar (vazio cancela): ");

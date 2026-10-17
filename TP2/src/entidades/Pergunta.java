@@ -26,7 +26,7 @@ public class Pergunta implements InterfaceRegistro {
     }
     
     public Pergunta(int idUsuario, long criacao, long alteracao, short nota, String pergunta,
-            String palavrasChave, boolean ativa) {
+        String palavrasChave, boolean ativa) {
         this.idPergunta = -1;
         this.idUsuario = idUsuario;
         this.criacao = criacao;
@@ -39,7 +39,7 @@ public class Pergunta implements InterfaceRegistro {
 
 
     public Pergunta(int idPergunta, int idUsuario, long criacao, long alteracao, short nota, String pergunta,
-            String palavrasChave, boolean ativa) {
+        String palavrasChave, boolean ativa) {
         this.idPergunta = idPergunta;
         this.idUsuario = idUsuario;
         this.criacao = criacao;
@@ -154,7 +154,7 @@ public class Pergunta implements InterfaceRegistro {
         String status = !this.ativa ? " (Arquivada)" : "";
         // Junto às perguntas, precisaremos imprimir um num relacionado, já que elas
         // serão exibidas sequencialmente {
-        return "(" + idPergunta + ")" + status +
+        return  status +
                 "\n" + dataFormatada +
                 "\n" + pergunta +
                 "\nPalavras chave: " + palavrasChave +
