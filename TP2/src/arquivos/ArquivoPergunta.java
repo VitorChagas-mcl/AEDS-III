@@ -5,6 +5,7 @@ import java.util.Comparator;
 
 import aed3.ArvoreBMais;
 import entidades.Pergunta;
+import entidades.Resposta;
 import aed3.ParIdUsuarioPergunta;
 import aed3.ParIdPerguntaData;
 
@@ -23,6 +24,10 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
 
     @Override
     public int create(Pergunta pergunta) throws Exception {
+        if (new ArquivoUsuario().read(pergunta.getIdUsuario()) == null) {
+            throw new Exception("O usuário autor da pergunta não existe.");
+        }
+
         int id = super.create(pergunta);
         IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(pergunta.getIdUsuario(), id));
         IndicePerguntaData.create(new ParIdPerguntaData(id, pergunta.getCriacao()));
@@ -69,6 +74,9 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             return false;
         if (PerguntaAntigo.getAtiva() == false)
             return false;
+        if (new ArquivoUsuario().read(PerguntaNova.getIdUsuario()) == null) {
+            throw new Exception("O usuário autor da pergunta não existe.");
+        }
 
         if (super.update(PerguntaNova)) {
             if (PerguntaAntigo.getIdUsuario() != PerguntaNova.getIdUsuario()) {
@@ -94,6 +102,15 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             System.out.println("Pergunta já está inativa.");
             return false;
         }
+
+        ArquivoResposta arquivoResposta = new ArquivoResposta();
+        ArrayList<Resposta> respostas = arquivoResposta.readByPerguntaRespostas(idPergunta);
+        for (Resposta resposta : respostas) {
+            if (!arquivoResposta.delete(resposta.getId())) {
+                throw new Exception("Não foi possível excluir uma resposta relacionada à pergunta.");
+            }
+        }
+
         if (super.delete(idPergunta)) {
             this.IndiceUsuarioPergunta.delete(new ParIdUsuarioPergunta(Pergunta.getIdUsuario(), idPergunta));
             this.IndicePerguntaData.delete(new ParIdPerguntaData(idPergunta, Pergunta.getCriacao()));

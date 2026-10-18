@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import aed3.ArvoreBMais;
 import aed3.ParIdId;
+import entidades.Avaliacao;
+import entidades.Pergunta;
 import entidades.Resposta;
 
 public class ArquivoResposta extends aed3.Arquivo<Resposta> {
@@ -22,6 +24,14 @@ public class ArquivoResposta extends aed3.Arquivo<Resposta> {
 
     @Override 
     public int create(Resposta resposta) throws Exception {
+        Pergunta pergunta = new ArquivoPergunta().read(resposta.getIdPergunta());
+        if (pergunta == null || !pergunta.getAtiva()) {
+            throw new Exception("A pergunta da resposta não existe ou está arquivada.");
+        }
+        if (new ArquivoUsuario().read(resposta.getIdUsuario()) == null) {
+            throw new Exception("O usuário autor da resposta não existe.");
+        }
+
         int id = super.create(resposta);
         indicePerguntaResposta.create(new ParIdId(resposta.getIdPergunta(), id));
         indiceUsuarioResposta.create(new ParIdId(resposta.getIdUsuario(), id));
@@ -84,19 +94,12 @@ public class ArquivoResposta extends aed3.Arquivo<Resposta> {
         if (respostaAntiga.isAtiva() == false)
             return false;
 
+        if (respostaAntiga.getIdPergunta() != respostaNova.getIdPergunta()
+                || respostaAntiga.getIdUsuario() != respostaNova.getIdUsuario()) {
+            throw new Exception("Não é permitido alterar a pergunta ou o autor de uma resposta.");
+        }
+
         if (super.update(respostaNova)) {
-            if (respostaAntiga.getIdPergunta() != respostaNova.getIdPergunta()) {
-                this.indicePerguntaResposta
-                        .delete(new ParIdId(respostaAntiga.getIdPergunta(), respostaAntiga.getId()));
-                this.indicePerguntaResposta
-                        .create(new ParIdId(respostaNova.getIdPergunta(), respostaNova.getId()));
-            }
-            if (respostaAntiga.getIdUsuario() != respostaNova.getIdUsuario()) {
-                this.indiceUsuarioResposta
-                        .delete(new ParIdId(respostaAntiga.getIdUsuario(), respostaAntiga.getId()));
-                this.indiceUsuarioResposta
-                        .create(new ParIdId(respostaNova.getIdUsuario(), respostaNova.getId()));
-            }
             return true;
         }
 
@@ -110,9 +113,17 @@ public class ArquivoResposta extends aed3.Arquivo<Resposta> {
             return false;
         }
         Resposta resposta = super.read(idResposta);
-        if(super.delete(idResposta)){
-            indicePerguntaResposta.delete(new ParIdId(resposta.getIdPergunta(), resposta.getId()));
-            indiceUsuarioResposta.delete(new ParIdId(resposta.getIdUsuario(), resposta.getId()));
+        ArquivoAvaliacao arquivoAvaliacao = new ArquivoAvaliacao();
+        ArrayList<Avaliacao> avaliacoes = arquivoAvaliacao.readByResposta(idResposta);
+        for (Avaliacao avaliacao : avaliacoes) {
+            if (!arquivoAvaliacao.delete(avaliacao.getId())) {
+                throw new Exception("Não foi possível excluir uma avaliação relacionada à resposta.");
+            }
+        }
+
+        if (super.delete(idResposta)) {
+            indicePerguntaResposta.delete(new ParIdId(resposta.getIdPergunta(), idResposta));
+            indiceUsuarioResposta.delete(new ParIdId(resposta.getIdUsuario(), idResposta));
             return true;
         }
         return false;

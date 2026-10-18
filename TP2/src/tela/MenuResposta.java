@@ -286,34 +286,10 @@ public class MenuResposta {
             throw new Exception("Você já avaliou esta resposta.");
         }
 
-        short notaAnterior = resposta.getNota();
-        short avaliacoesAnteriores = resposta.getAvaliacoes();
-
-        int variacao = positiva ? 1 : -1;
-        resposta.setNota((short) (notaAnterior + variacao));
-        resposta.setAvaliacoes((short) (avaliacoesAnteriores + 1));
-
-        if (!arqResposta.update(resposta)) {
-            throw new Exception("Não foi possível atualizar a resposta.");
-        }
-
-        try {
-            arqAvaliacao.create(new Avaliacao(
-                    usuarioLogado.getId(),
-                    resposta.getId(),
-                    positiva));
-        } catch (Exception erro) {
-            resposta.setNota(notaAnterior);
-            resposta.setAvaliacoes(avaliacoesAnteriores);
-
-            if (!arqResposta.update(resposta)) {
-                throw new Exception(
-                        "Falha ao registrar a avaliação e ao restaurar a resposta.",
-                        erro);
-            }
-
-            throw erro;
-        }
+        arqAvaliacao.create(new Avaliacao(
+                usuarioLogado.getId(),
+                resposta.getId(),
+                positiva));
     }
 
     public void telaMinhasRespostas(Usuario usuarioLogado) throws Exception {
@@ -504,34 +480,8 @@ public class MenuResposta {
             throw new Exception("A avaliação não existe ou não pertence ao usuário autenticado.");
         }
 
-        Resposta resposta = arqResposta.read(avaliacao.getIdResposta());
-        if (resposta == null) {
-            throw new Exception("A resposta avaliada não existe mais.");
-        }
-        if (resposta.getAvaliacoes() <= 0) {
-            throw new IllegalStateException("A quantidade de avaliações da resposta é inválida.");
-        }
-
-        int variacaoNota = avaliacao.isAvaliacao() ? -1 : 1;
-        if (!arqResposta.ajustarAvaliacao(resposta.getId(), variacaoNota, -1)) {
-            throw new Exception("Não foi possível atualizar a nota da resposta.");
-        }
-
-        try {
-            if (!arqAvaliacao.delete(avaliacao.getId())) {
-                throw new Exception("Não foi possível remover a avaliação.");
-            }
-        } catch (Exception erro) {
-            try {
-                if (!arqResposta.ajustarAvaliacao(resposta.getId(), -variacaoNota, 1)) {
-                    throw new Exception("A resposta não pôde ser restaurada.");
-                }
-            } catch (Exception erroRestauracao) {
-                throw new Exception(
-                        "Falha ao remover a avaliação e restaurar a nota da resposta.",
-                        erroRestauracao);
-            }
-            throw erro;
+        if (!arqAvaliacao.delete(avaliacao.getId())) {
+            throw new Exception("Não foi possível cancelar a avaliação.");
         }
     }
 

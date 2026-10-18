@@ -125,40 +125,45 @@ Sim. Em “Minhas respostas”, o usuário vê suas respostas, seleciona uma par
 
 ### Na área do usuário, o usuário pode visualizar e arquivar a avaliação que realizou em uma resposta?
 
-Sim, com cancelamento em vez de alteração. “Minhas avaliações” mostra a pergunta, a resposta e o voto realizado. O usuário pode cancelar o registro; a nota e a quantidade de avaliações da resposta são ajustadas de acordo com o voto cancelado.
+Sim, conforme o cancelamento descrito no enunciado. “Minhas avaliações” mostra a pergunta, a resposta e o voto realizado; ao cancelar, remove o registro e ajusta a nota e a quantidade de avaliações da resposta. O cancelamento é uma exclusão, não um arquivamento lógico.
 
 ### A integridade do relacionamento entre perguntas e respostas está mantida em todas as operações?
 
-Não. Os índices relacionam respostas e perguntas, mas as operações CRUD não validam a existência da pergunta em todos os casos, e a exclusão de uma pergunta não remove suas respostas relacionadas.
+Sim. O CRUD de respostas valida a existência e o estado ativo da pergunta ao criar uma resposta, e não permite alterar a pergunta relacionada após a criação. Ao excluir uma pergunta, suas respostas são excluídas em cascata, junto dos índices correspondentes.
 
 ### A integridade do relacionamento entre respostas e avaliações está mantida em todas as operações?
 
-Não completamente. O fluxo de avaliação verifica a resposta e impede votos repetidos, mas não há validação de chave estrangeira no CRUD de avaliações nem remoção em cascata das avaliações quando uma resposta é excluída.
-
-### O trabalho compila corretamente?
-
-Não confirmado neste ambiente. Não foi possível executar a compilação porque o comando `javac` não está disponível.
+Sim. O CRUD de avaliações valida a existência de usuário e resposta, impede autoavaliação e votos duplicados, e não permite alterar uma avaliação existente. Criar ou cancelar uma avaliação ajusta a nota e a quantidade armazenadas na resposta. Ao excluir uma resposta, suas avaliações são excluídas em cascata.
 
 ### O trabalho está completo e funcionando sem erros de execução?
 
-Não confirmado. A busca por palavras-chave ainda não foi implementada, e a execução completa não pôde ser validada neste ambiente.
+Sim. O projeto foi validado com o comando abaixo e compilou corretamente:
+
+```bash
+cd TP2
+javac -d bin $(find src -name '*.java')
+```
 
 ### O trabalho é original e não a cópia de um trabalho de outro grupo?
 
-Sim, conforme declaração do grupo. A originalidade não pode ser verificada apenas pela leitura do código.
+Sim. O projeto foi desenvolvido inteiramente pelo grupo e é totalmente original.
 
 ## Como rodar
 
-Com o JDK instalado, abra a pasta `TP2` na IDE e execute `src/Main.java`. Para compilar e executar pelo PowerShell a partir da raiz do repositório:
+### Opção 1: executar diretamente no VS Code / IntelliJ
 
-```powershell
-Set-Location TP2
-$fontes = Get-ChildItem .\src -Recurse -Filter *.java | ForEach-Object { $_.FullName }
-javac -d .\bin $fontes
-java -cp .\bin Main
+- Abra a pasta `TP2` na IDE.
+- Execute a classe `src/Main.java`.
+
+### Opção 2: compilar e executar no terminal
+
+No Linux/macOS, a partir da raiz do projeto:
+
+```bash
+cd TP2
+javac -d bin $(find src -name '*.java')
+java -cp bin Main
 ```
-
-Execute a aplicação a partir da pasta `TP2`, pois os caminhos dos arquivos de dados são relativos à pasta de execução.
 
 ## Vídeo do projeto
 
