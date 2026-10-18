@@ -13,6 +13,8 @@ import auxiliar.Leitura;
 import entidades.Pergunta;
 import entidades.Resposta;
 import entidades.Usuario;
+import arquivos.ArquivoAvaliacao;
+import entidades.Avaliacao;
 
 public class MenuResposta {
 
@@ -23,12 +25,14 @@ public class MenuResposta {
 
     private final ArquivoPergunta arqPergunta;
     private final ArquivoResposta arqResposta;
+    private final ArquivoAvaliacao arqAvaliacao;
     private final ArquivoUsuario arqUsuario;
     private final Usuario usuarioLogado;
 
     public MenuResposta(Usuario usuarioLogado) throws Exception {
         arqPergunta = new ArquivoPergunta();
         arqResposta = new ArquivoResposta();
+        arqAvaliacao = new ArquivoAvaliacao();
         arqUsuario = new ArquivoUsuario();
         this.usuarioLogado = usuarioLogado;
     }
@@ -78,7 +82,7 @@ public class MenuResposta {
                 for (int i = inicio; i < fim; i++) {
                     Pergunta pergunta = perguntas.get(i);
                     System.out.println("(" + (i + 1) + ") " + pergunta.getPergunta()
-                            +  "\n" + "Criada por " + nomeUsuario(pergunta.getIdUsuario())
+                            + "\n" + "Criada por " + nomeUsuario(pergunta.getIdUsuario())
                             + " em " + formatarData(pergunta.getCriacao()) + "\n");
                 }
             }
@@ -171,7 +175,7 @@ public class MenuResposta {
 
     private void telaResponder(Pergunta pergunta) throws Exception {
         System.out.println("\n\nAJUDA AÍ 1.0\n------------\n> Início > Buscar perguntas > "
-            + "Perguntas mais recentes > Pergunta > Responder\n");
+                + "Perguntas mais recentes > Pergunta > Responder\n");
         imprimirPergunta(pergunta);
         System.out.print("\nResposta: ");
         String texto = Leitura.Teclado().trim();
@@ -188,47 +192,64 @@ public class MenuResposta {
 
     private void telaVisualizarResposta(Pergunta pergunta, Resposta resposta) throws Exception {
         String opcao;
+        boolean respostaDoUsuario = resposta.getIdUsuario() == usuarioLogado.getId();
+
         do {
+            boolean jaAvaliou = !respostaDoUsuario
+                    && arqAvaliacao.readByUsuarioResposta(
+                            usuarioLogado.getId(), resposta.getId()) != null;
+
             System.out.println("\n\nAJUDA AÍ 1.0\n------------\n> Início > Buscar perguntas > "
                     + "Perguntas mais recentes > Pergunta > Resposta\n");
             imprimirPergunta(pergunta);
+
             System.out.println("\nRESPOSTA\n--------\n");
             System.out.println(resposta.getResposta());
-            String autorResposta = resposta.getIdUsuario() == usuarioLogado.getId()
+
+            String autorResposta = respostaDoUsuario
                     ? "você"
                     : nomeUsuario(resposta.getIdUsuario());
+
             System.out.println("Respondido por " + autorResposta
                     + " em " + formatarData(resposta.getCriacao()));
-            System.out.println("Nota: " + resposta.getNota() + " (" + resposta.getAvaliacoes() + " avaliações)");
+            System.out.println("Nota: " + resposta.getNota()
+                    + " (" + resposta.getAvaliacoes() + " avaliações)");
 
-            if (resposta.getIdUsuario() == usuarioLogado.getId()) {
+            if (respostaDoUsuario) {
                 System.out.println("\n(A) Arquivar resposta");
+            } else if (jaAvaliou) {
+                System.out.println("\nVocê já avaliou esta resposta.");
             } else {
                 System.out.println("\n(A) Concordar com a resposta");
                 System.out.println("(B) Discordar da resposta");
             }
+
             System.out.println("(R) Retornar ao menu anterior");
             System.out.print("\nOpção: ");
             opcao = Leitura.Teclado().trim().toUpperCase();
 
-            if (resposta.getIdUsuario() == usuarioLogado.getId()) {
-                if (opcao.equals("A")) {
-                    resposta.setAtiva(false);
-                    if (arqResposta.update(resposta)) {
-                        System.out.println("\nResposta arquivada com sucesso!");
-                        return;
-                    }
-                    throw new Exception("Não foi possível arquivar a resposta.");
+            if (respostaDoUsuario && opcao.equals("A")) {
+                resposta.setAtiva(false);
+
+                if (arqResposta.update(resposta)) {
+                    System.out.println("\nResposta arquivada com sucesso!");
+                    return;
                 }
-            } else if (opcao.equals("A") || opcao.equals("B")) {
-                int variacao = opcao.equals("A") ? 1 : -1;
-                resposta.setNota((short) (resposta.getNota() + variacao));
-                resposta.setAvaliacoes((short) (resposta.getAvaliacoes() + 1));
-                if (!arqResposta.update(resposta)) {
-                    throw new Exception("Não foi possível registrar a avaliação.");
-                }
+
+                throw new Exception("Não foi possível arquivar a resposta.");
+            } else if (!respostaDoUsuario
+                    && !jaAvaliou
+                    && (opcao.equals("A") || opcao.equals("B"))) {
+                boolean positiva = opcao.equals("A");
+                registrarAvaliacao(resposta, positiva);
                 System.out.println("\nAvaliação registrada.");
                 return;
+            } else if (!respostaDoUsuario
+                    && jaAvaliou
+                    && (opcao.equals("A") || opcao.equals("B"))) {
+                System.out.println("\nVocê já avaliou esta resposta.");
+            } else if (!opcao.equals("R")) {
+                System.out.println("\nOpção inválida!");
             }
         } while (!opcao.equals("R"));
     }
@@ -246,5 +267,52 @@ public class MenuResposta {
 
     private String formatarData(long data) {
         return FORMATO_DATA.format(Instant.ofEpochMilli(data));
+    }
+
+    private void registrarAvaliacao(Resposta respostaSelecionada, boolean positiva)
+            throws Exception {
+        Resposta resposta = arqResposta.read(respostaSelecionada.getId());
+
+        if (resposta == null || !resposta.isAtiva()) {
+            throw new Exception("Resposta não encontrada ou arquivada.");
+        }
+
+        if (resposta.getIdUsuario() == usuarioLogado.getId()) {
+            throw new Exception("Você não pode avaliar sua própria resposta.");
+        }
+
+        if (arqAvaliacao.readByUsuarioResposta(
+                usuarioLogado.getId(), resposta.getId()) != null) {
+            throw new Exception("Você já avaliou esta resposta.");
+        }
+
+        short notaAnterior = resposta.getNota();
+        short avaliacoesAnteriores = resposta.getAvaliacoes();
+
+        int variacao = positiva ? 1 : -1;
+        resposta.setNota((short) (notaAnterior + variacao));
+        resposta.setAvaliacoes((short) (avaliacoesAnteriores + 1));
+
+        if (!arqResposta.update(resposta)) {
+            throw new Exception("Não foi possível atualizar a resposta.");
+        }
+
+        try {
+            arqAvaliacao.create(new Avaliacao(
+                    usuarioLogado.getId(),
+                    resposta.getId(),
+                    positiva));
+        } catch (Exception erro) {
+            resposta.setNota(notaAnterior);
+            resposta.setAvaliacoes(avaliacoesAnteriores);
+
+            if (!arqResposta.update(resposta)) {
+                throw new Exception(
+                        "Falha ao registrar a avaliação e ao restaurar a resposta.",
+                        erro);
+            }
+
+            throw erro;
+        }
     }
 }
