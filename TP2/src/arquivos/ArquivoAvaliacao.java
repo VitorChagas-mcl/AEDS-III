@@ -1,5 +1,7 @@
 package arquivos;
 
+import java.util.ArrayList;
+
 import entidades.Avaliacao;
 
 public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
@@ -17,6 +19,17 @@ public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
             }
         }
         return null;
+    }
+
+    public ArrayList<Avaliacao> readByUsuarioAvaliacoes(int idUsuario)
+            throws Exception {
+        ArrayList<Avaliacao> avaliacoesDoUsuario = new ArrayList<>();
+        for (Avaliacao avaliacao : readAll()) {
+            if (avaliacao.getIdUsuario() == idUsuario) {
+                avaliacoesDoUsuario.add(avaliacao);
+            }
+        }
+        return avaliacoesDoUsuario;
     }
 
     @Override

@@ -56,6 +56,25 @@ public class ArquivoResposta extends aed3.Arquivo<Resposta> {
         }
         return respostas;
     }
+
+    public boolean ajustarAvaliacao(int idResposta, int variacaoNota, int variacaoAvaliacoes)
+            throws Exception {
+        Resposta resposta = super.read(idResposta);
+        if (resposta == null) {
+            return false;
+        }
+
+        int novaNota = resposta.getNota() + variacaoNota;
+        int novaQuantidade = resposta.getAvaliacoes() + variacaoAvaliacoes;
+        if (novaNota < Short.MIN_VALUE || novaNota > Short.MAX_VALUE
+                || novaQuantidade < 0 || novaQuantidade > Short.MAX_VALUE) {
+            throw new IllegalStateException("A nota ou a quantidade de avaliações está fora do limite permitido.");
+        }
+
+        resposta.setNota((short) novaNota);
+        resposta.setAvaliacoes((short) novaQuantidade);
+        return super.update(resposta);
+    }
     
     @Override
     public boolean update(Resposta respostaNova) throws Exception {

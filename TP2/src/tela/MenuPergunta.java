@@ -83,26 +83,36 @@ public class MenuPergunta {
     }
 
     public void telaListarPerguntas(Usuario usuarioLogado, ArrayList<Pergunta> perguntas) throws Exception {
-        try {
+        String opcao;
+        MenuResposta menuResposta = new MenuResposta(usuarioLogado);
+        do {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
-            System.out.println("\nMINHAS PERGUNTAS");
+            System.out.println("\n> Início > Minha área > Minhas perguntas > Listar perguntas");
             if (perguntas.isEmpty()) {
                 System.out.println("Nenhuma pergunta cadastrada!\n");
-            } else {
-                System.out.println("Perguntas cadastradas:");
-                int i = 1;
-                for (Pergunta p : perguntas) {
-                    System.out.println("( "+ i +" ) " + p.toString());
-                    i++;
-                }
+                return;
             }
-            System.out.println("Pressione enter para continuar...");
-            Leitura.Teclado();
-            telaMinhasPerguntas(usuarioLogado);
-        } catch (Exception e) {
-            System.out.print("erro: " + e.getMessage());
-        }
+
+            System.out.println("Selecione uma pergunta para visualizar suas respostas:");
+            for (int i = 0; i < perguntas.size(); i++) {
+                System.out.println("(" + (i + 1) + ") " + perguntas.get(i));
+            }
+            System.out.println("(R) Retornar ao menu anterior");
+            System.out.print("\nOpção: ");
+            opcao = Leitura.Teclado().trim().toUpperCase();
+
+            if (opcao.matches("\\d+")) {
+                int indice = Integer.parseInt(opcao) - 1;
+                if (indice >= 0 && indice < perguntas.size()) {
+                    menuResposta.telaRespostasDaMinhaPergunta(perguntas.get(indice), usuarioLogado);
+                } else {
+                    System.out.println("\nNúmero de pergunta inválido.");
+                }
+            } else if (!opcao.equals("R")) {
+                System.out.println("\nOpção inválida.");
+            }
+        } while (!opcao.equals("R"));
     }
 
     public void telaArquivarPergunta(Usuario usuarioLogado, ArrayList<Pergunta> perguntas) throws Exception {

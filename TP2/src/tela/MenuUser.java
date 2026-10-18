@@ -184,6 +184,7 @@ public class MenuUser {
     }
 
     public void telaMinhaArea(Usuario usuarioLogado) throws Exception {
+        MenuResposta menuResposta = new MenuResposta(usuarioLogado);
         String op;
         do {
             System.out.println("\n\nAJUDA AÍ 1.0");
@@ -192,7 +193,7 @@ public class MenuUser {
             System.out.println("\n(A) Meus dados");
             System.out.println("(B) Minhas perguntas");
             System.out.println("(C) Minhas respostas");
-            System.out.println("(D) Meus votos");
+            System.out.println("(D) Minhas avaliações");
             System.out.println("\n(R) Retornar ao menu anterior");
             System.out.print("\nOpção: ");
             op = Leitura.Teclado().trim().toUpperCase();
@@ -206,11 +207,11 @@ public class MenuUser {
                     menuPergunta.telaMinhasPerguntas(usuarioLogado);
                     break;
                 case "C":
-                    System.out.println("Tela de Minhas respostas");
+                    menuResposta.telaMinhasRespostas(usuarioLogado);
                     break;
 
                 case "D":
-                    System.out.println("Tela de Meus votos");
+                    menuResposta.telaMinhasAvaliacoes(usuarioLogado);
                     break;
 
                 case "R":
