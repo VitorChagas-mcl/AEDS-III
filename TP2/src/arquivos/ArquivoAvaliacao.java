@@ -2,33 +2,48 @@ package arquivos;
 
 import java.util.ArrayList;
 
+import aed3.ArvoreBMais;
+import aed3.ParIdId;
 import entidades.Avaliacao;
 import entidades.Resposta;
 import entidades.Usuario;
 
 public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
 
+    private ArvoreBMais<ParIdId> indiceUsuarioAvaliacao;
+    private ArvoreBMais<ParIdId> indiceRespostaAvaliacao;
+
     public ArquivoAvaliacao() throws Exception {
         super("Avaliacao", Avaliacao.class.getConstructor());
+        
+        indiceUsuarioAvaliacao = new ArvoreBMais<ParIdId>(ParIdId.class.getConstructor(), 5,
+                "./dados/Avaliacao/indiceUsuarioAvaliacao.diretorio.db");
+        indiceRespostaAvaliacao = new ArvoreBMais<ParIdId>(ParIdId.class.getConstructor(), 5,
+                "./dados/Avaliacao/indiceRespostaAvaliacao.diretorio.db");
     }
 
-    public Avaliacao readByUsuarioResposta(int idUsuario, int idResposta)
-            throws Exception {
-        for (Avaliacao avaliacao : readAll()) {
-            if (avaliacao.getIdUsuario() == idUsuario
-                    && avaliacao.getIdResposta() == idResposta) {
-                return avaliacao;
+    public Avaliacao readByUsuarioResposta(int idUsuario, int idResposta) throws Exception {
+        ArrayList<ParIdId> avaliacoesIndice = indiceUsuarioAvaliacao.read(null);
+        for (ParIdId par : avaliacoesIndice) {
+            if (par.getId1() == idUsuario) {
+                Avaliacao avaliacao = super.read(par.getId2());
+                if (avaliacao != null && avaliacao.getIdResposta() == idResposta) {
+                    return avaliacao;
+                }
             }
         }
         return null;
     }
 
-    public ArrayList<Avaliacao> readByUsuarioAvaliacoes(int idUsuario)
-            throws Exception {
+    public ArrayList<Avaliacao> readByUsuarioAvaliacoes(int idUsuario) throws Exception {
         ArrayList<Avaliacao> avaliacoesDoUsuario = new ArrayList<>();
-        for (Avaliacao avaliacao : readAll()) {
-            if (avaliacao.getIdUsuario() == idUsuario) {
-                avaliacoesDoUsuario.add(avaliacao);
+        ArrayList<ParIdId> avaliacoesIndice = indiceUsuarioAvaliacao.read(null);
+        for (ParIdId par : avaliacoesIndice) {
+            if (par.getId1() == idUsuario) {
+                Avaliacao avaliacao = super.read(par.getId2());
+                if (avaliacao != null) {
+                    avaliacoesDoUsuario.add(avaliacao);
+                }
             }
         }
         return avaliacoesDoUsuario;
@@ -36,9 +51,13 @@ public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
 
     public ArrayList<Avaliacao> readByResposta(int idResposta) throws Exception {
         ArrayList<Avaliacao> avaliacoesDaResposta = new ArrayList<>();
-        for (Avaliacao avaliacao : readAll()) {
-            if (avaliacao.getIdResposta() == idResposta) {
-                avaliacoesDaResposta.add(avaliacao);
+        ArrayList<ParIdId> avaliacoesIndice = indiceRespostaAvaliacao.read(null);
+        for (ParIdId par : avaliacoesIndice) {
+            if (par.getId1() == idResposta) {
+                Avaliacao avaliacao = super.read(par.getId2());
+                if (avaliacao != null) {
+                    avaliacoesDaResposta.add(avaliacao);
+                }
             }
         }
         return avaliacoesDaResposta;
@@ -59,9 +78,7 @@ public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
             throw new Exception("O autor não pode avaliar a própria resposta.");
         }
 
-        if (readByUsuarioResposta(
-                avaliacao.getIdUsuario(),
-                avaliacao.getIdResposta()) != null) {
+        if (readByUsuarioResposta(avaliacao.getIdUsuario(), avaliacao.getIdResposta()) != null) {
             throw new Exception("Este usuário já avaliou esta resposta.");
         }
 
@@ -72,7 +89,12 @@ public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
         }
 
         try {
-            return super.create(avaliacao);
+            int id = super.create(avaliacao);
+            
+            indiceUsuarioAvaliacao.create(new ParIdId(avaliacao.getIdUsuario(), id));
+            indiceRespostaAvaliacao.create(new ParIdId(avaliacao.getIdResposta(), id));
+            
+            return id;
         } catch (Exception erro) {
             try {
                 if (!arquivoResposta.ajustarAvaliacao(resposta.getId(), -variacaoNota, -1)) {
@@ -112,8 +134,14 @@ public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
 
         ArquivoResposta arquivoResposta = new ArquivoResposta();
         Resposta resposta = arquivoResposta.read(avaliacao.getIdResposta());
+        
         if (resposta == null) {
-            return super.delete(idAvaliacao);
+            if (super.delete(idAvaliacao)) {
+                indiceUsuarioAvaliacao.delete(new ParIdId(avaliacao.getIdUsuario(), idAvaliacao));
+                indiceRespostaAvaliacao.delete(new ParIdId(avaliacao.getIdResposta(), idAvaliacao));
+                return true;
+            }
+            return false;
         }
 
         if (resposta.getAvaliacoes() <= 0) {
@@ -128,6 +156,9 @@ public class ArquivoAvaliacao extends aed3.Arquivo<Avaliacao> {
             if (!super.delete(idAvaliacao)) {
                 throw new Exception("Não foi possível remover a avaliação.");
             }
+            indiceUsuarioAvaliacao.delete(new ParIdId(avaliacao.getIdUsuario(), idAvaliacao));
+            indiceRespostaAvaliacao.delete(new ParIdId(avaliacao.getIdResposta(), idAvaliacao));
+            
             return true;
         } catch (Exception erro) {
             try {
