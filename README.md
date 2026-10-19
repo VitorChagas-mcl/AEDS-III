@@ -31,7 +31,24 @@ A aplicação foi organizada em camadas. As classes adicionadas ou alteradas no 
 
 ## Prints do Projeto
 
-Não foram encontradas capturas de tela específicas do TP2 no repositório.
+### `Tela Perguntas`
+![telaPerguntas](/doc/TelaPerguntas.jpeg)
+
+### `Tela Resposta`
+![Resposta](/doc/avaliacao.jpeg)
+
+### `Tela Avaliacao`
+![Avalicao](doc/avaliacaoResposta.jpeg)
+
+### `Tela De Minhas Respostas`
+![Minhas Respostas](doc/minhasResposta.jpeg)
+
+### `Tela De Arquivar Respost`
+![Arquivar Resposta](doc/arquivarResposta.jpeg)
+
+### `Tela De Arquivar Avalições`
+![Arquivar Avaliacao](doc/cancelarAvaliacao.jpeg)
+
 
 ## Estrutura das alterações do TP2
 
@@ -169,7 +186,9 @@ java -cp bin Main
 
 ## Vídeo do projeto
 
-Não foi encontrado um vídeo específico do TP2 no repositório.
+<video controls src="/doc/AEDS III - TP2.mp4" title="Title"></video>
+
+LINK [https://youtu.be/yfhu8lq-GNw](https://youtu.be/yfhu8lq-GNw)
 
 ## Observações
 

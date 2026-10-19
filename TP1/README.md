@@ -200,7 +200,7 @@ java -cp bin Main
 ```
 ## Video do projeto: 
 
-<video controls src="TP1/doc/vidoeTP1.mp4" title="Title"></video>
+<video controls src="/doc/vidoeTP1.mp4" title="Title"></video>
 
 LINK [https://youtu.be/GYvgLcf77M8](https://youtu.be/GYvgLcf77M8)
 
