@@ -26,8 +26,8 @@ Na área do usuário, é possível listar e arquivar as próprias respostas, con
 A aplicação foi organizada em camadas. As classes adicionadas ou alteradas no TP2 incluem:
 
 - entidades (`TP2/src/entidades`): novas classes `Resposta` e `Avaliacao`; alteração de `Pergunta`;
-- arquivos e índices (`TP2/src/arquivos` e `TP2/src/aed3`): novas classes `ArquivoResposta`, `ArquivoAvaliacao` e `ParIdPerguntaData`; alterações em `ArquivoPergunta` e `ParIdEmail`;
-- interfaces e execução (`TP2/src/tela` e `TP2/src`): novo `MenuResposta`, alterações em `MenuPergunta` e `Main`.
+- arquivos e índices (`TP2/src/arquivos` e `TP2/src/aed3`): novas classes `ArquivoResposta`, `ArquivoAvaliacao` e `ParIdPerguntaData`; alterações em `ArquivoPergunta`, `ArquivoUsuario` e `ParIdEmail`;
+- interfaces e execução (`TP2/src/tela` e `TP2/src`): novo `MenuResposta`, alterações em `MenuPergunta`, `MenuUser` e `Main`.
 
 ## Prints do Projeto
 
@@ -45,14 +45,16 @@ TP2/
     ├── arquivos/
     │   ├── ArquivoAvaliacao.java         (novo)
     │   ├── ArquivoPergunta.java          (alterado)
-    │   └── ArquivoResposta.java          (novo)
+    │   ├── ArquivoResposta.java          (novo)
+    │   └── ArquivoUsuario.java           (alterado)
     ├── entidades/
     │   ├── Avaliacao.java                (novo)
     │   ├── Pergunta.java                 (alterado)
     │   └── Resposta.java                 (novo)
     └── tela/
         ├── MenuPergunta.java             (alterado)
-        └── MenuResposta.java             (novo)
+        ├── MenuResposta.java             (novo)
+        └── MenuUser.java                 (alterado)
 ```
 
 ## Descrição dos principais arquivos alterados ou adicionados
@@ -75,7 +77,7 @@ Representam e armazenam respostas. `ArquivoResposta` mantém índices B+ por per
 
 ### `TP2/src/entidades/Avaliacao.java` e `TP2/src/arquivos/ArquivoAvaliacao.java`
 
-Representam e armazenam a avaliação de um usuário sobre uma resposta, indicando voto positivo ou negativo. `ArquivoAvaliacao` impede avaliações duplicadas do mesmo usuário para a mesma resposta. Ao registrar um voto, `MenuResposta` atualiza a nota e a quantidade de avaliações da resposta.
+Representam e armazenam a avaliação de um usuário sobre uma resposta, indicando voto positivo ou negativo. `ArquivoAvaliacao` impede avaliações duplicadas do mesmo usuário para a mesma resposta e atualiza a nota e a quantidade de avaliações da resposta ao registrar ou excluir um voto.
 
 ### `TP2/src/Main.java`
 
@@ -174,7 +176,7 @@ Não foi encontrado um vídeo específico do TP2 no repositório.
 - A listagem de perguntas recentes percorre as entradas do índice B+ e aplica a ordenação decrescente antes de paginar.
 - A busca por palavras-chave ainda exibe uma mensagem informando que não foi implementada.
 - “Minhas respostas” e “Minhas avaliações” permitem consultar e gerenciar os registros do usuário.
-- O CRUD permite excluir respostas, mas essa exclusão não remove automaticamente as avaliações associadas.
+- Ao excluir uma resposta pelo CRUD, as avaliações associadas também são excluídas, e a nota e a quantidade de avaliações são ajustadas antes da remoção.
 
 ## Objetivo do TP2
 
