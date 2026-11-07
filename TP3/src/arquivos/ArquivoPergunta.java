@@ -1,0 +1,123 @@
+package arquivos;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+
+import aed3.ArvoreBMais;
+import entidades.Pergunta;
+import entidades.Resposta;
+import aed3.ParIdUsuarioPergunta;
+import aed3.ParIdPerguntaData;
+
+public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
+
+    private ArvoreBMais<ParIdUsuarioPergunta> IndiceUsuarioPergunta;
+    private ArvoreBMais<ParIdPerguntaData> IndicePerguntaData;
+
+    public ArquivoPergunta() throws Exception {
+        super("Pergunta", Pergunta.class.getConstructor());
+        IndiceUsuarioPergunta = new ArvoreBMais<ParIdUsuarioPergunta>(ParIdUsuarioPergunta.class.getConstructor(),
+                5, "./dados/Pergunta/indicePergunta.diretorio.db");
+        IndicePerguntaData = new ArvoreBMais<ParIdPerguntaData>(ParIdPerguntaData.class.getConstructor(),
+                5, "./dados/Pergunta/indicePerguntaData.diretorio.db");
+    }
+
+    @Override
+    public int create(Pergunta pergunta) throws Exception {
+        if (new ArquivoUsuario().read(pergunta.getIdUsuario()) == null) {
+            throw new Exception("O usuário autor da pergunta não existe.");
+        }
+
+        int id = super.create(pergunta);
+        IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(pergunta.getIdUsuario(), id));
+        IndicePerguntaData.create(new ParIdPerguntaData(id, pergunta.getCriacao()));
+        return id;
+    }
+
+    public ArrayList<Pergunta> readByUsuarioPerguntas(int idUsuario) throws Exception {
+        ArrayList<Pergunta> perguntas = new ArrayList<>();
+        ArrayList<ParIdUsuarioPergunta> perguntasIndice = IndiceUsuarioPergunta.read(null);
+        for (ParIdUsuarioPergunta par : perguntasIndice) {
+            if (par.getIdUsuario() == idUsuario) {
+                Pergunta pergunta = super.read(par.getIdPergunta());
+                if (pergunta != null) {
+                    perguntas.add(pergunta);
+                }
+            }
+        }
+        return perguntas;
+    }
+
+    public ArrayList<Pergunta> readPerguntasRecentes() throws Exception {
+        ArrayList<Pergunta> perguntas = new ArrayList<>();
+        ArrayList<ParIdPerguntaData> perguntasIndice = IndicePerguntaData.read(null);
+
+        for (ParIdPerguntaData par : perguntasIndice) {
+            Pergunta pergunta = super.read(par.getIdPergunta());
+            if (pergunta != null && pergunta.getAtiva()) {
+                perguntas.add(pergunta);
+            }
+        }
+
+        perguntas.sort(Comparator
+                .comparingLong(Pergunta::getCriacao)
+                .reversed()
+                .thenComparing(Comparator.comparingInt(Pergunta::getId).reversed()));
+        return perguntas;
+    }
+
+
+    @Override
+    public boolean update(Pergunta PerguntaNova) throws Exception {
+        Pergunta PerguntaAntigo = super.read(PerguntaNova.getId());
+        if (PerguntaAntigo == null)
+            return false;
+        if (PerguntaAntigo.getAtiva() == false)
+            return false;
+        if (new ArquivoUsuario().read(PerguntaNova.getIdUsuario()) == null) {
+            throw new Exception("O usuário autor da pergunta não existe.");
+        }
+
+        if (super.update(PerguntaNova)) {
+            if (PerguntaAntigo.getIdUsuario() != PerguntaNova.getIdUsuario()) {
+                this.IndiceUsuarioPergunta
+                        .delete(new ParIdUsuarioPergunta(PerguntaAntigo.getIdUsuario(), PerguntaAntigo.getId()));
+                this.IndiceUsuarioPergunta
+                        .create(new ParIdUsuarioPergunta(PerguntaNova.getIdUsuario(), PerguntaNova.getId()));
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean delete(int idPergunta) throws Exception {
+        if (super.read(idPergunta) == null) {
+            System.out.println("Pergunta não encontrada.");
+            return false;
+        }
+        Pergunta Pergunta = super.read(idPergunta);
+        if (Pergunta.getAtiva() == false) {
+            System.out.println("Pergunta já está inativa.");
+            return false;
+        }
+
+        ArquivoResposta arquivoResposta = new ArquivoResposta();
+        ArrayList<Resposta> respostas = arquivoResposta.readByPerguntaRespostas(idPergunta);
+        for (Resposta resposta : respostas) {
+            if (!arquivoResposta.delete(resposta.getId())) {
+                throw new Exception("Não foi possível excluir uma resposta relacionada à pergunta.");
+            }
+        }
+
+        if (super.delete(idPergunta)) {
+            this.IndiceUsuarioPergunta.delete(new ParIdUsuarioPergunta(Pergunta.getIdUsuario(), idPergunta));
+            this.IndicePerguntaData.delete(new ParIdPerguntaData(idPergunta, Pergunta.getCriacao()));
+            Pergunta.setAtiva(false);
+            return true;
+        }
+
+        return false;
+    }
+}
