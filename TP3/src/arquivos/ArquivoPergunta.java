@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.text.Normalizer;
 
 import aed3.ArvoreBMais;
 import aed3.ElementoLista;
 import aed3.ListaInvertida;
 import entidades.Pergunta;
 import entidades.Resposta;
+import entidades.Usuario;
 import aed3.ParIdUsuarioPergunta;
 import aed3.ParIdPerguntaData;
 
@@ -25,11 +26,12 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
 
     private static final Set<String> STOP_WORDS = new HashSet<String>();
     static {
-        String palavras = "a ao aos as ate com da das de dei do dos e em entre era eram "
-                + "essa essas esse esses esta estas este estes eu foi foram ha "
-                + "isso isto ja mas na nas no nos num numa o os ou para pela pelas "
-                + "pelo pelos por que se sem seu seus sua suas tambem um uma uns umas "
-                + "como quando onde porque qual quais quem quanto sobre";
+        String palavras = "a ao aos as ate com como da das de del do dos e eh em entre era "
+                + "essa esse este eu foi ha isso isto ja la lhe lhes lo mas me mesmo meu meus "
+                + "minha minhas muito na nao nas nem no nos num numa o os ou para pelo pelos "
+                + "pela pelas por qual quando que quem se sem seu seus sua suas tambem te teu "
+                + "teus tua tuas um uma uns umas voce vos ante apos desde durante exceto menos "
+                + "salvo sob sobre tras dois tres quatro cinco seis sete oito nove dez cem mil";
         for (String palavra : palavras.split(" ")) {
             STOP_WORDS.add(palavra);
         }
@@ -50,7 +52,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
                 perguntasAtivas++;
             }
         }
-        if (indicePalavras.numeroEntidades() != perguntasAtivas) {
+        if (indicePalavras.numeroEntidades() != perguntasAtivas || !indicePalavrasConsistente()) {
             reconstruirIndicePalavras();
         }
     }
@@ -61,11 +63,13 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             throw new Exception("O usuário autor da pergunta não existe.");
         }
 
+        pergunta.setPalavrasChave(String.join(";", normalizarTermos(pergunta.getPalavrasChave())));
         int id = super.create(pergunta);
         IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(pergunta.getIdUsuario(), id));
         IndicePerguntaData.create(new ParIdPerguntaData(id, pergunta.getCriacao()));
-        indexarPergunta(pergunta);
-        indicePalavras.incrementaEntidades();
+        if (indexarPergunta(pergunta)) {
+            indicePalavras.incrementaEntidades();
+        }
         return id;
     }
 
@@ -113,6 +117,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             throw new Exception("O usuário autor da pergunta não existe.");
         }
 
+        PerguntaNova.setPalavrasChave(String.join(";", normalizarTermos(PerguntaNova.getPalavrasChave())));
         if (super.update(PerguntaNova)) {
             if (PerguntaAntigo.getIdUsuario() != PerguntaNova.getIdUsuario()) {
                 this.IndiceUsuarioPergunta
@@ -121,13 +126,23 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
                         .create(new ParIdUsuarioPergunta(PerguntaNova.getIdUsuario(), PerguntaNova.getId()));
             }
             if (PerguntaAntigo.getAtiva() && PerguntaNova.getAtiva()) {
+                boolean antigaIndexada = !normalizarTermos(PerguntaAntigo.getPalavrasChave()).isEmpty();
                 atualizarIndicePalavras(PerguntaAntigo, PerguntaNova);
+                boolean novaIndexada = !normalizarTermos(PerguntaNova.getPalavrasChave()).isEmpty();
+                if (!antigaIndexada && novaIndexada) {
+                    indicePalavras.incrementaEntidades();
+                } else if (antigaIndexada && !novaIndexada) {
+                    indicePalavras.decrementaEntidades();
+                }
             } else if (PerguntaAntigo.getAtiva() && !PerguntaNova.getAtiva()) {
                 removerDoIndice(PerguntaAntigo);
-                indicePalavras.decrementaEntidades();
+                if (!normalizarTermos(PerguntaAntigo.getPalavrasChave()).isEmpty()) {
+                    indicePalavras.decrementaEntidades();
+                }
             } else if (!PerguntaAntigo.getAtiva() && PerguntaNova.getAtiva()) {
-                indexarPergunta(PerguntaNova);
-                indicePalavras.incrementaEntidades();
+                if (indexarPergunta(PerguntaNova)) {
+                    indicePalavras.incrementaEntidades();
+                }
             }
             return true;
         }
@@ -159,7 +174,9 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             this.IndiceUsuarioPergunta.delete(new ParIdUsuarioPergunta(Pergunta.getIdUsuario(), idPergunta));
             this.IndicePerguntaData.delete(new ParIdPerguntaData(idPergunta, Pergunta.getCriacao()));
             removerDoIndice(Pergunta);
-            indicePalavras.decrementaEntidades();
+            if (!normalizarTermos(Pergunta.getPalavrasChave()).isEmpty()) {
+                indicePalavras.decrementaEntidades();
+            }
             Pergunta.setAtiva(false);
             return true;
         }
@@ -181,7 +198,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             if (ocorrencias.length == 0) {
                 continue;
             }
-            double idf = Math.log10((double) entidades / ocorrencias.length);
+            double idf = Math.log10((double) entidades / ocorrencias.length) + 1.0;
             for (ElementoLista ocorrencia : ocorrencias) {
                 Pergunta pergunta = read(ocorrencia.getId());
                 if (pergunta != null && pergunta.getAtiva()) {
@@ -209,21 +226,18 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         indexarPergunta(nova);
     }
 
-    private void indexarPergunta(Pergunta pergunta) throws Exception {
+    private boolean indexarPergunta(Pergunta pergunta) throws Exception {
         ArrayList<String> termos = normalizarTermos(pergunta.getPalavrasChave());
         if (termos.isEmpty()) {
-            return;
+            return false;
         }
-        float frequencia = 1f / termos.size();
-        for (String termo : termos) {
-            ElementoLista atual = indicePalavras.read(termo, pergunta.getId());
-            if (atual == null) {
-                indicePalavras.create(termo, new ElementoLista(pergunta.getId(), frequencia));
-            } else {
-                indicePalavras.update(termo,
-                        new ElementoLista(pergunta.getId(), atual.getFrequencia() + frequencia));
-            }
+        Map<String, Integer> frequencias = contarFrequencias(termos);
+        int totalTermos = termos.size();
+        for (Map.Entry<String, Integer> entrada : frequencias.entrySet()) {
+            float frequencia = (float) entrada.getValue() / totalTermos;
+            indicePalavras.create(entrada.getKey(), new ElementoLista(pergunta.getId(), frequencia));
         }
+        return true;
     }
 
     private void removerDoIndice(Pergunta pergunta) throws Exception {
@@ -237,16 +251,45 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         if (texto == null) {
             return termos;
         }
-        String semAcentos = Normalizer.normalize(texto, Normalizer.Form.NFD)
-                .replaceAll("\\p{M}", "")
-                .toLowerCase(Locale.ROOT);
-        for (String termo : semAcentos.split("[^\\p{L}\\p{Nd}]+")) {
-            if (!termo.isEmpty() && !STOP_WORDS.contains(termo)
-                    && !termo.matches("\\d+")) {
+        for (String palavra : texto.split(";")) {
+            String termo = Usuario.tirarAcentos(palavra)
+                    .trim()
+                    .replaceAll("\\s+", " ")
+                    .toLowerCase(new Locale("pt", "BR"));
+            if (!termo.isEmpty() && !STOP_WORDS.contains(termo)) {
                 termos.add(termo);
             }
         }
         return termos;
+    }
+
+    private Map<String, Integer> contarFrequencias(ArrayList<String> termos) {
+        Map<String, Integer> frequencias = new LinkedHashMap<>();
+        for (String termo : termos) {
+            frequencias.put(termo, frequencias.getOrDefault(termo, 0));
+        }
+        return frequencias;
+    }
+
+    private boolean indicePalavrasConsistente() throws Exception {
+        for (Pergunta pergunta : readAll()) {
+            if (!pergunta.getAtiva()) {
+                continue;
+            }
+            ArrayList<String> termos = normalizarTermos(pergunta.getPalavrasChave());
+            Map<String, Integer> frequencias = contarFrequencias(termos);
+            for (Map.Entry<String, Integer> entrada : frequencias.entrySet()) {
+                ElementoLista elemento = indicePalavras.read(entrada.getKey(), pergunta.getId());
+                if (elemento == null) {
+                    return false;
+                }
+                float esperado = (float) entrada.getValue() / termos.size();
+                if (Math.abs(elemento.getFrequencia() - esperado) > 0.0001f) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private void reconstruirIndicePalavras() throws Exception {
@@ -259,8 +302,9 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         indicePalavras = new ListaInvertida(8, dicionario.getPath(), blocos.getPath());
         for (Pergunta pergunta : readAll()) {
             if (pergunta.getAtiva()) {
-                indexarPergunta(pergunta);
-                indicePalavras.incrementaEntidades();
+                if (indexarPergunta(pergunta)) {
+                    indicePalavras.incrementaEntidades();
+                }
             }
         }
     }
