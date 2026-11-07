@@ -54,7 +54,14 @@ public class MenuResposta {
                     telaListarPerguntas();
                     break;
                 case "B":
-                    System.out.println("\nBusca por palavra-chave ainda não implementada.");
+                    System.out.print("\nDigite as palavras-chave: ");
+                    String consulta = Leitura.Teclado().trim();
+                    if (consulta.isEmpty()) {
+                        System.out.println("\nA busca não pode ser vazia.");
+                    } else {
+                        telaListarPerguntas(arqPergunta.readPerguntasPorPalavras(consulta),
+                                "Busca por palavras-chave");
+                    }
                     break;
                 case "R":
                     break;
@@ -65,14 +72,17 @@ public class MenuResposta {
     }
 
     public void telaListarPerguntas() throws Exception {
+        telaListarPerguntas(arqPergunta.readPerguntasRecentes(), "Perguntas mais recentes");
+    }
+
+    private void telaListarPerguntas(ArrayList<Pergunta> perguntas, String titulo) throws Exception {
         String opcao;
         int paginaAtual = 0;
-        ArrayList<Pergunta> perguntas = arqPergunta.readPerguntasRecentes();
 
         do {
             System.out.println("\n\nAJUDA AÍ 1.0");
             System.out.println("------------");
-            System.out.println("\n> Início > Buscar perguntas > Perguntas mais recentes\n");
+            System.out.println("\n> Início > Buscar perguntas > " + titulo + "\n");
 
             int inicio = paginaAtual * PERGUNTAS_POR_PAGINA;
             int fim = Math.min(inicio + PERGUNTAS_POR_PAGINA, perguntas.size());
