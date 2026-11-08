@@ -21,11 +21,7 @@ As principais melhorias introduzidas no TP3 incluem:
 - atualização automática do índice ao criar, alterar ou arquivar perguntas;
 - reconstrução do índice invertido quando ele estiver inconsistente.
 
-<<<<<<< HEAD
 A aplicação continua organizada em camadas, mantendo a estrutura de usuários, perguntas, respostas e menus já desenvolvidos nos TPs anteriores. A principal novidade é o uso de `ListaInvertida` para consultar perguntas por termos de busca.
-=======
-Na área do usuário, é possível listar e arquivar as próprias respostas, consultar as avaliações realizadas e cancelá-las, além de selecionar uma pergunta própria para ver e arquivar respostas de outros usuários.
->>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
 
 ## Estrutura do projeto
 
@@ -120,9 +116,6 @@ Sim. A ordenação da busca usa um modelo de ponderação TF × IDF, em que a fr
 
 ### O trabalho compila corretamente?
 
-<<<<<<< HEAD
-Sim. Os módulos do projeto seguem a compilação Java padrão por pasta. O procedimento esperado é:
-=======
 ### `TP2/src/aed3/ParIdEmail.java`
 
 Altera a serialização da chave do índice hash extensível para preencher o espaço reservado ao email, mantendo o tamanho fixo do registro.
@@ -240,7 +233,6 @@ conjugações verbais diferentes podem ser tratadas como termos diferentes.
 ### O trabalho está completo e funcionando sem erros de execução?
 
 Sim. O projeto foi validado com o comando abaixo e compilou corretamente:
->>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
 
 ```bash
 cd TP3
@@ -275,22 +267,13 @@ LINK [https://youtu.be/yfhu8lq-GNw](https://youtu.be/yfhu8lq-GNw)
 
 ## Observações
 
-<<<<<<< HEAD
-- Os dados e índices persistem em `TP3/src/dados/` e em seus subdiretórios.
-- A busca por palavras-chave é uma extensão do sistema já existente, mantendo os fluxos de login, pergunta, resposta e avaliação.
-- O uso de lista invertida permite consultas mais rápidas e mais relevantes em grandes conjuntos de perguntas.
-=======
 - A listagem de perguntas recentes percorre as entradas do índice B+ e aplica a ordenação decrescente antes de paginar.
 - A busca por palavras-chave usa o índice invertido persistente e a ordenação por TF×IDF.
 - “Minhas respostas” e “Minhas avaliações” permitem consultar e gerenciar os registros do usuário.
 - Ao excluir uma resposta pelo CRUD, as avaliações associadas também são excluídas, e a nota e a quantidade de avaliações são ajustadas antes da remoção.
->>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
 
 ## Objetivo do TP3
 
 O objetivo desta etapa foi ampliar o sistema com busca textual por palavras-chave, usando uma estrutura de lista invertida para indexar os termos presentes nas perguntas e recuperar as perguntas mais relevantes para a consulta informada pelo usuário.
 
-<<<<<<< HEAD
-=======
 O objetivo desta etapa é ampliar o sistema com perguntas recentes paginadas, respostas, avaliações e busca por palavras-chave. Foram implementados o fluxo de listagem e navegação de perguntas, a consulta e ordenação de respostas, o envio e arquivamento de respostas próprias e de respostas recebidas nas próprias perguntas, o registro e cancelamento de avaliações e a busca por perguntas usando índice invertido e TF×IDF.
->>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
