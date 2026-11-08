@@ -238,7 +238,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         if (texto == null) {
             return termos;
         }
-        for (String palavra : texto.split(";")) {
+        for (String palavra : texto.split("[;\\s]+")) {
             String termo = Usuario.tirarAcentos(palavra)
                     .trim()
                     .replaceAll("\\s+", " ")
