@@ -1,4 +1,4 @@
-# AEDs III - TP02
+# AEDs III - TP03
 
 ## Participantes
 
@@ -9,177 +9,136 @@
 
 ## Descrição do trabalho
 
-O TP2 dá continuidade ao sistema de perguntas e respostas do TP1. Nesta etapa, o sistema foi ampliado com listagem paginada de perguntas recentes, operações de respostas e avaliações, e índices B+ para relacionar os registros.
+O TP3 dá continuidade ao sistema de perguntas e respostas desenvolvido nos trabalhos anteriores. Nesta etapa, o foco foi a pesquisa textual por palavras-chave, com a implementação de um índice invertido sobre as perguntas cadastradas e a ordenação dos resultados por relevância.
 
-As funcionalidades acrescentadas ou modificadas no TP2 incluem:
+As principais melhorias introduzidas no TP3 incluem:
 
-- listagem das perguntas ativas em ordem decrescente de data, com cinco perguntas por página;
-- visualização das respostas de uma pergunta, ordenadas por nota decrescente;
-- cadastro de uma resposta por um usuário autenticado;
-- arquivamento lógico da própria resposta;
-- avaliação positiva ou negativa de respostas de outros usuários, com atualização da nota e da quantidade de avaliações;
-- registro da avaliação por usuário e resposta, impedindo que o mesmo usuário avalie a mesma resposta mais de uma vez;
-- índices B+ para localizar perguntas recentes e para relacionar respostas a perguntas e usuários.
+- busca de perguntas por palavras-chave informadas pelo usuário;
+- normalização de termos para comparação textual, removendo acentos e padronizando letras minúsculas;
+- exclusão de palavras muito comuns (stop words) no processo de indexação;
+- armazenamento invertido de frequências por termo e por pergunta;
+- cálculo de pontuação por relevância para ordenar os resultados da busca;
+- atualização automática do índice ao criar, alterar ou arquivar perguntas;
+- reconstrução do índice invertido quando ele estiver inconsistente.
 
-Na área do usuário, é possível listar e arquivar as próprias respostas, consultar as avaliações realizadas e cancelá-las, além de selecionar uma pergunta própria para ver e arquivar respostas de outros usuários. A busca por palavras-chave ainda não está implementada.
+A aplicação continua organizada em camadas, mantendo a estrutura de usuários, perguntas, respostas e menus já desenvolvidos nos TPs anteriores. A principal novidade é o uso de `ListaInvertida` para consultar perguntas por termos de busca.
 
-A aplicação foi organizada em camadas. As classes adicionadas ou alteradas no TP2 incluem:
+## Estrutura do projeto
 
-- entidades (`TP2/src/entidades`): novas classes `Resposta` e `Avaliacao`; alteração de `Pergunta`;
-- arquivos e índices (`TP2/src/arquivos` e `TP2/src/aed3`): novas classes `ArquivoResposta`, `ArquivoAvaliacao` e `ParIdPerguntaData`; alterações em `ArquivoPergunta`, `ArquivoUsuario` e `ParIdEmail`;
-- interfaces e execução (`TP2/src/tela` e `TP2/src`): novo `MenuResposta`, alterações em `MenuPergunta`, `MenuUser` e `Main`.
+```text
+TP3/
+└── src/
+    ├── Main.java
+    ├── aed3/
+    │   ├── Arquivo.java
+    │   ├── ArvoreBMais.java
+    │   ├── ElementoLista.java
+    │   ├── HashExtensivel.java
+    │   ├── InterfaceArvoreBMais.java
+    │   ├── InterfaceHashExtensivel.java
+    │   ├── InterfaceRegistro.java
+    │   ├── ListaInvertida.java
+    │   ├── ParIDEndereco.java
+    │   ├── ParIdEmail.java
+    │   ├── ParIdId.java
+    │   ├── ParIdPerguntaData.java
+    │   └── ParIdUsuarioPergunta.java
+    ├── arquivos/
+    │   ├── ArquivoAvaliacao.java
+    │   ├── ArquivoPergunta.java
+    │   ├── ArquivoResposta.java
+    │   └── ArquivoUsuario.java
+    ├── entidades/
+    │   ├── Avaliacao.java
+    │   ├── Pergunta.java
+    │   ├── Resposta.java
+    │   └── Usuario.java
+    ├── tela/
+    │   ├── MenuPergunta.java
+    │   ├── MenuResposta.java
+    │   └── MenuUser.java
+    └── auxiliar/
+        └── Leitura.java
+```
 
 ## Prints do Projeto
 
-### `Tela Perguntas`
-![telaPerguntas](/doc/TelaPerguntas.jpeg)
+Os principais prints e materiais visuais deste trabalho estão disponíveis na pasta `doc/` e no README específico do TP3.
 
-### `Tela Resposta`
-![Resposta](/doc/avaliacao.jpeg)
+## Descrição dos principais arquivos
 
-### `Tela Avaliacao`
-![Avalicao](doc/avaliacaoResposta.jpeg)
+### `TP3/src/Main.java`
 
-### `Tela De Minhas Respostas`
-![Minhas Respostas](doc/minhasResposta.jpeg)
+Classe principal da aplicação. Inicia o sistema, autentica o usuário e redireciona para o menu principal, onde é possível acessar a área do usuário e a busca por perguntas.
 
-### `Tela De Arquivar Respost`
-![Arquivar Resposta](doc/arquivarResposta.jpeg)
+### `TP3/src/tela/MenuResposta.java`
 
-### `Tela De Arquivar Avalições`
-![Arquivar Avaliacao](doc/cancelarAvaliacao.jpeg)
+Implementa o fluxo de busca de perguntas. Ele oferece as opções de:
 
+- listar as perguntas mais recentes;
+- buscar por palavras-chave;
+- navegar por páginas de resultados;
+- abrir uma pergunta e visualizar suas respostas;
+- responder uma pergunta ou consultar uma resposta específica.
 
-## Estrutura das alterações do TP2
+### `TP3/src/arquivos/ArquivoPergunta.java`
 
-```text
-TP2/
-└── src/
-    ├── Main.java                         (alterado)
-    ├── aed3/
-    │   ├── ParIdEmail.java               (alterado)
-    │   └── ParIdPerguntaData.java        (novo)
-    ├── arquivos/
-    │   ├── ArquivoAvaliacao.java         (novo)
-    │   ├── ArquivoPergunta.java          (alterado)
-    │   ├── ArquivoResposta.java          (novo)
-    │   └── ArquivoUsuario.java           (alterado)
-    ├── entidades/
-    │   ├── Avaliacao.java                (novo)
-    │   ├── Pergunta.java                 (alterado)
-    │   └── Resposta.java                 (novo)
-    └── tela/
-        ├── MenuPergunta.java             (alterado)
-        ├── MenuResposta.java             (novo)
-        └── MenuUser.java                 (alterado)
-```
+É a extensão principal do CRUD de perguntas para o TP3. Além das operações já existentes, ela adiciona:
 
-## Descrição dos principais arquivos alterados ou adicionados
+- índice por usuário;
+- índice por data;
+- lista invertida de termos;
+- normalização dos termos de busca;
+- busca por relevância usando frequência e ponderação por IDF;
+- reconstrução automática do índice quando necessário.
 
-### `TP2/src/tela/MenuResposta.java`
+### `TP3/src/aed3/ListaInvertida.java`
 
-Implementa o fluxo de perguntas recentes: pagina os resultados em grupos de cinco, permite abrir uma pergunta, mostra as respostas ativas em ordem decrescente de nota e permite enviar uma resposta. Na visualização de uma resposta, o autor pode arquivá-la; outros usuários podem avaliá-la positiva ou negativamente.
+Implementa a estrutura de lista invertida usada para armazenar, por termo, quais perguntas o contêm e qual a frequência relativa desse termo. A estrutura organiza o dicionário e os blocos de ocorrência em arquivos físicos para persistência em disco.
 
-### `TP2/src/arquivos/ArquivoPergunta.java`
+### `TP3/src/entidades/Pergunta.java`
 
-Acrescenta o índice B+ de perguntas por data e o método `readPerguntasRecentes`, que lê as entradas do índice, desconsidera perguntas arquivadas e retorna os registros em ordem decrescente de data. A interface aplica a paginação sobre essa lista.
+Representa a pergunta do sistema com dados como autor, texto, palavras-chave, data de criação, nota e status ativo/inativo. No TP3, o campo de palavras-chave passa a ser relevante para o mecanismo de busca textual.
 
-### `TP2/src/aed3/ParIdPerguntaData.java`
+## Perguntas frequentes e validação do projeto
 
-Novo registro do índice B+, comparado pela data em ordem decrescente e, em caso de empate, pelo ID da pergunta em ordem decrescente.
+### O índice invertido com palavras-chave foi criado usando a classe `ListaInvertida`?
 
-### `TP2/src/entidades/Resposta.java` e `TP2/src/arquivos/ArquivoResposta.java`
+Sim. A estrutura de índice invertido foi implementada por meio da classe `ListaInvertida`, usada no `ArquivoPergunta` para guardar os termos e os registros correspondentes das perguntas, além de suas frequências.
 
-Representam e armazenam respostas. `ArquivoResposta` mantém índices B+ por pergunta e por usuário, permite consultar respostas por esses relacionamentos e atualiza os índices quando um relacionamento muda. O arquivamento feito pela interface é lógico (`ativa = false`).
+### É possível buscar perguntas por palavras-chave no menu de buscar perguntas?
 
-### `TP2/src/entidades/Avaliacao.java` e `TP2/src/arquivos/ArquivoAvaliacao.java`
+Sim. O menu de busca oferece a opção de “Busca por palavras-chave”, e esse fluxo chama `ArquivoPergunta.readPerguntasPorPalavras(consulta)`, que realiza a consulta textual usando o índice invertido.
 
-Representam e armazenam a avaliação de um usuário sobre uma resposta, indicando voto positivo ou negativo. `ArquivoAvaliacao` impede avaliações duplicadas do mesmo usuário para a mesma resposta e atualiza a nota e a quantidade de avaliações da resposta ao registrar ou excluir um voto.
+### As perguntas retornadas estão corretamente classificadas pelo modelo TFxIDF?
 
-### `TP2/src/Main.java`
+Sim. A ordenação da busca usa um modelo de ponderação TF × IDF, em que a frequência do termo na pergunta é multiplicada por um fator de inverso da frequência no conjunto de documentos, e os resultados são exibidos em ordem decrescente de pontuação.
 
-Altera a opção “Buscar perguntas” para iniciar o novo `MenuResposta`.
+### O trabalho compila corretamente?
 
-### `TP2/src/aed3/ParIdEmail.java`
-
-Altera a serialização da chave do índice hash extensível para preencher o espaço reservado ao email, mantendo o tamanho fixo do registro.
-
-### `TP2/src/tela/MenuPergunta.java` e `TP2/src/entidades/Pergunta.java`
-
-Alterações de apresentação das perguntas e de suas listagens na área de perguntas.
-
-## Operações especiais que foram implementadas
-
-### Há uma listagem paginada de perguntas, que mostra as perguntas em ordem decrescente de data a partir de uma Árvore B+ acrescentada ao CRUD de Perguntas?
-
-Sim. `ArquivoPergunta.readPerguntasRecentes` lê os registros pelo índice B+ de data, filtra as perguntas ativas e ordena por data decrescente. `MenuResposta` apresenta cinco perguntas por página, com navegação para as páginas anterior e seguinte.
-
-### Há uma listagem das respostas a uma pergunta selecionada, em ordem decrescente de nota?
-
-Sim. Ao abrir uma pergunta, `MenuResposta` consulta as respostas relacionadas, mostra apenas as ativas e as ordena por nota decrescente; em caso de empate, usa a data de criação decrescente.
-
-### O usuário pode responder a uma pergunta?
-
-Sim. A partir da visualização de uma pergunta, o usuário pode cadastrar uma resposta não vazia.
-
-### O usuário pode arquivar a própria resposta?
-
-Sim. Na visualização de uma resposta escrita pelo usuário autenticado, a opção de arquivamento altera seu estado para inativo.
-
-### O usuário pode avaliar uma resposta?
-
-Sim. O usuário pode concordar ou discordar de uma resposta de outra pessoa. A avaliação é registrada e a nota e a quantidade de avaliações da resposta são atualizadas. O autor não pode avaliar a própria resposta, e cada usuário pode avaliar cada resposta uma única vez.
-
-### Na área do usuário, o usuário pode visualizar as respostas às suas perguntas?
-
-Sim. Em “Minhas perguntas”, o usuário seleciona uma pergunta para visualizar as respostas ativas de outros usuários.
-
-### Na área do usuário, o usuário pode arquivar uma resposta de outro usuário a uma das suas perguntas?
-
-Sim. Na visualização das respostas de uma pergunta própria, o usuário pode selecionar e arquivar respostas ativas escritas por outras pessoas.
-
-### Na área do usuário, o usuário pode visualizar e arquivar as respostas que escreveu?
-
-Sim. Em “Minhas respostas”, o usuário vê suas respostas, seleciona uma para visualizar a pergunta e o texto completo da resposta e pode arquivá-la.
-
-### Na área do usuário, o usuário pode visualizar e arquivar a avaliação que realizou em uma resposta?
-
-Sim, conforme o cancelamento descrito no enunciado. “Minhas avaliações” mostra a pergunta, a resposta e o voto realizado; ao cancelar, remove o registro e ajusta a nota e a quantidade de avaliações da resposta. O cancelamento é uma exclusão, não um arquivamento lógico.
-
-### A integridade do relacionamento entre perguntas e respostas está mantida em todas as operações?
-
-Sim. O CRUD de respostas valida a existência e o estado ativo da pergunta ao criar uma resposta, e não permite alterar a pergunta relacionada após a criação. Ao excluir uma pergunta, suas respostas são excluídas em cascata, junto dos índices correspondentes.
-
-### A integridade do relacionamento entre respostas e avaliações está mantida em todas as operações?
-
-Sim. O CRUD de avaliações valida a existência de usuário e resposta, impede autoavaliação e votos duplicados, e não permite alterar uma avaliação existente. Criar ou cancelar uma avaliação ajusta a nota e a quantidade armazenadas na resposta. Ao excluir uma resposta, suas avaliações são excluídas em cascata.
-
-### O trabalho está completo e funcionando sem erros de execução?
-
-Sim. O projeto foi validado com o comando abaixo e compilou corretamente:
+Sim. Os módulos do projeto seguem a compilação Java padrão por pasta. O procedimento esperado é:
 
 ```bash
-cd TP2
+cd TP3
 javac -d bin $(find src -name '*.java')
 ```
 
+Também é possível seguir o mesmo padrão para TP1 e TP2, conforme descrito em cada README específico.
+
+### O trabalho está completo e funcionando sem erros de execução?
+
+Sim. O sistema foi implementado de forma integrada, com os fluxos principais funcionando: login, cadastro, perguntas, respostas, avaliações e busca por palavras-chave, além da manutenção dos índices e arquivos de persistência.
+
 ### O trabalho é original e não a cópia de um trabalho de outro grupo?
 
-Sim. O projeto foi desenvolvido inteiramente pelo grupo e é totalmente original.
+Sim. O projeto foi desenvolvido pelo grupo e é original, sem cópia de código de outro grupo.
 
-## Como rodar
+## Como executar
 
-### Opção 1: executar diretamente no VS Code / IntelliJ
-
-- Abra a pasta `TP2` na IDE.
-- Execute a classe `src/Main.java`.
-
-### Opção 2: compilar e executar no terminal
-
-No Linux/macOS, a partir da raiz do projeto:
+### TP3
 
 ```bash
-cd TP2
+cd TP3
 javac -d bin $(find src -name '*.java')
 java -cp bin Main
 ```
@@ -192,11 +151,11 @@ LINK [https://youtu.be/yfhu8lq-GNw](https://youtu.be/yfhu8lq-GNw)
 
 ## Observações
 
-- A listagem de perguntas recentes percorre as entradas do índice B+ e aplica a ordenação decrescente antes de paginar.
-- A busca por palavras-chave ainda exibe uma mensagem informando que não foi implementada.
-- “Minhas respostas” e “Minhas avaliações” permitem consultar e gerenciar os registros do usuário.
-- Ao excluir uma resposta pelo CRUD, as avaliações associadas também são excluídas, e a nota e a quantidade de avaliações são ajustadas antes da remoção.
+- Os dados e índices persistem em `TP3/src/dados/` e em seus subdiretórios.
+- A busca por palavras-chave é uma extensão do sistema já existente, mantendo os fluxos de login, pergunta, resposta e avaliação.
+- O uso de lista invertida permite consultas mais rápidas e mais relevantes em grandes conjuntos de perguntas.
 
-## Objetivo do TP2
+## Objetivo do TP3
 
-O objetivo desta etapa é ampliar o sistema com perguntas recentes paginadas, respostas e avaliações. Foram implementados o fluxo de listagem e navegação de perguntas, a consulta e ordenação de respostas, o envio e arquivamento de respostas próprias e de respostas recebidas nas próprias perguntas, e o registro e cancelamento de avaliações. A busca por palavras-chave ainda precisa ser implementada.
+O objetivo desta etapa foi ampliar o sistema com busca textual por palavras-chave, usando uma estrutura de lista invertida para indexar os termos presentes nas perguntas e recuperar as perguntas mais relevantes para a consulta informada pelo usuário.
+
