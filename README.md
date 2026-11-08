@@ -21,7 +21,7 @@ As funcionalidades acrescentadas ou modificadas no TP2 incluem:
 - registro da avaliação por usuário e resposta, impedindo que o mesmo usuário avalie a mesma resposta mais de uma vez;
 - índices B+ para localizar perguntas recentes e para relacionar respostas a perguntas e usuários.
 
-Na área do usuário, é possível listar e arquivar as próprias respostas, consultar as avaliações realizadas e cancelá-las, além de selecionar uma pergunta própria para ver e arquivar respostas de outros usuários. A busca por palavras-chave ainda não está implementada.
+Na área do usuário, é possível listar e arquivar as próprias respostas, consultar as avaliações realizadas e cancelá-las, além de selecionar uma pergunta própria para ver e arquivar respostas de outros usuários.
 
 A aplicação foi organizada em camadas. As classes adicionadas ou alteradas no TP2 incluem:
 
@@ -108,6 +108,59 @@ Altera a serialização da chave do índice hash extensível para preencher o es
 
 Alterações de apresentação das perguntas e de suas listagens na área de perguntas.
 
+## TP3 - Índice invertido e busca por palavras-chave
+
+O TP3 acrescenta a busca de perguntas por palavras-chave usando um índice invertido
+persistente e a métrica TF×IDF. As palavras-chave informadas no cadastro de uma
+pergunta são indexadas e podem ser usadas posteriormente na consulta.
+
+### Funcionamento do índice invertido
+
+- Os termos são convertidos para letras minúsculas.
+- Os acentos são removidos com `java.text.Normalizer`.
+- Caracteres especiais são usados como separadores e não fazem parte dos termos.
+- Artigos, preposições, numerais e outras palavras irrelevantes são removidos por
+  uma lista de *stop words* adequada ao domínio.
+- Não é feita lematização: palavras no singular e no plural, ou diferentes
+  conjugações verbais, permanecem como termos distintos após a normalização.
+- Para cada termo, o índice armazena os pares `(id da pergunta, TF)`.
+- O TF é a frequência do termo dividida pela quantidade de termos válidos da
+  pergunta.
+- O número de perguntas ativas é armazenado no dicionário do índice para o
+  cálculo do IDF.
+
+Na consulta, os termos pesquisados recebem o mesmo tratamento aplicado durante a
+indexação. Para cada termo encontrado, o sistema calcula
+`IDF = log10(numero de perguntas ativas / quantidade de perguntas que contêm o
+termo)` e soma `TF × IDF` por pergunta. Os resultados são apresentados em ordem
+decrescente de pontuação.
+
+### Atualização do índice
+
+O índice é atualizado junto com o ciclo de vida das perguntas:
+
+- inclusão: cria as entradas dos termos e incrementa a quantidade de entidades;
+- alteração: remove os termos antigos e indexa os novos;
+- arquivamento: remove a pergunta do índice e decrementa a quantidade de
+  entidades;
+- exclusão: remove a pergunta do índice e decrementa a quantidade de entidades.
+
+Na inicialização, o índice existente é apenas aberto. Perguntas já armazenadas
+não são reprocessadas automaticamente; o índice é atualizado somente nas
+operações de inclusão, alteração, arquivamento e exclusão realizadas pelo
+sistema.
+
+### Arquivos principais do TP3
+
+- `TP3/src/aed3/ListaInvertida.java`: armazenamento persistente do dicionário e
+  dos blocos das listas invertidas.
+- `TP3/src/aed3/ElementoLista.java`: representa o ID e a frequência de uma
+  ocorrência no índice.
+- `TP3/src/arquivos/ArquivoPergunta.java`: mantém o índice, normaliza os termos,
+  calcula TF×IDF e executa a busca.
+- `TP3/src/tela/MenuResposta.java`: disponibiliza a opção “Busca por
+  palavras-chave” na interface.
+
 ## Operações especiais que foram implementadas
 
 ### Há uma listagem paginada de perguntas, que mostra as perguntas em ordem decrescente de data a partir de uma Árvore B+ acrescentada ao CRUD de Perguntas?
@@ -154,6 +207,13 @@ Sim. O CRUD de respostas valida a existência e o estado ativo da pergunta ao cr
 
 Sim. O CRUD de avaliações valida a existência de usuário e resposta, impede autoavaliação e votos duplicados, e não permite alterar uma avaliação existente. Criar ou cancelar uma avaliação ajusta a nota e a quantidade armazenadas na resposta. Ao excluir uma resposta, suas avaliações são excluídas em cascata.
 
+### A busca por palavras-chave está implementada?
+
+Sim. A opção “Busca por palavras-chave” normaliza os termos da consulta, consulta
+o índice invertido e apresenta as perguntas ativas em ordem decrescente de
+TF×IDF. A busca não faz lematização; portanto, formas no singular, no plural e
+conjugações verbais diferentes podem ser tratadas como termos diferentes.
+
 ### O trabalho está completo e funcionando sem erros de execução?
 
 Sim. O projeto foi validado com o comando abaixo e compilou corretamente:
@@ -193,10 +253,10 @@ LINK [https://youtu.be/yfhu8lq-GNw](https://youtu.be/yfhu8lq-GNw)
 ## Observações
 
 - A listagem de perguntas recentes percorre as entradas do índice B+ e aplica a ordenação decrescente antes de paginar.
-- A busca por palavras-chave ainda exibe uma mensagem informando que não foi implementada.
+- A busca por palavras-chave usa o índice invertido persistente e a ordenação por TF×IDF.
 - “Minhas respostas” e “Minhas avaliações” permitem consultar e gerenciar os registros do usuário.
 - Ao excluir uma resposta pelo CRUD, as avaliações associadas também são excluídas, e a nota e a quantidade de avaliações são ajustadas antes da remoção.
 
 ## Objetivo do TP2
 
-O objetivo desta etapa é ampliar o sistema com perguntas recentes paginadas, respostas e avaliações. Foram implementados o fluxo de listagem e navegação de perguntas, a consulta e ordenação de respostas, o envio e arquivamento de respostas próprias e de respostas recebidas nas próprias perguntas, e o registro e cancelamento de avaliações. A busca por palavras-chave ainda precisa ser implementada.
+O objetivo desta etapa é ampliar o sistema com perguntas recentes paginadas, respostas, avaliações e busca por palavras-chave. Foram implementados o fluxo de listagem e navegação de perguntas, a consulta e ordenação de respostas, o envio e arquivamento de respostas próprias e de respostas recebidas nas próprias perguntas, o registro e cancelamento de avaliações e a busca por perguntas usando índice invertido e TF×IDF.
