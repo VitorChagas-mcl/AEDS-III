@@ -21,7 +21,11 @@ As principais melhorias introduzidas no TP3 incluem:
 - atualização automática do índice ao criar, alterar ou arquivar perguntas;
 - reconstrução do índice invertido quando ele estiver inconsistente.
 
+<<<<<<< HEAD
 A aplicação continua organizada em camadas, mantendo a estrutura de usuários, perguntas, respostas e menus já desenvolvidos nos TPs anteriores. A principal novidade é o uso de `ListaInvertida` para consultar perguntas por termos de busca.
+=======
+Na área do usuário, é possível listar e arquivar as próprias respostas, consultar as avaliações realizadas e cancelá-las, além de selecionar uma pergunta própria para ver e arquivar respostas de outros usuários.
+>>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
 
 ## Estrutura do projeto
 
@@ -116,7 +120,127 @@ Sim. A ordenação da busca usa um modelo de ponderação TF × IDF, em que a fr
 
 ### O trabalho compila corretamente?
 
+<<<<<<< HEAD
 Sim. Os módulos do projeto seguem a compilação Java padrão por pasta. O procedimento esperado é:
+=======
+### `TP2/src/aed3/ParIdEmail.java`
+
+Altera a serialização da chave do índice hash extensível para preencher o espaço reservado ao email, mantendo o tamanho fixo do registro.
+
+### `TP2/src/tela/MenuPergunta.java` e `TP2/src/entidades/Pergunta.java`
+
+Alterações de apresentação das perguntas e de suas listagens na área de perguntas.
+
+## TP3 - Índice invertido e busca por palavras-chave
+
+O TP3 acrescenta a busca de perguntas por palavras-chave usando um índice invertido
+persistente e a métrica TF×IDF. As palavras-chave informadas no cadastro de uma
+pergunta são indexadas e podem ser usadas posteriormente na consulta.
+
+### Funcionamento do índice invertido
+
+- Os termos são convertidos para letras minúsculas.
+- Os acentos são removidos com `java.text.Normalizer`.
+- Caracteres especiais são usados como separadores e não fazem parte dos termos.
+- Artigos, preposições, numerais e outras palavras irrelevantes são removidos por
+  uma lista de *stop words* adequada ao domínio.
+- Não é feita lematização: palavras no singular e no plural, ou diferentes
+  conjugações verbais, permanecem como termos distintos após a normalização.
+- Para cada termo, o índice armazena os pares `(id da pergunta, TF)`.
+- O TF é a frequência do termo dividida pela quantidade de termos válidos da
+  pergunta.
+- O número de perguntas ativas é armazenado no dicionário do índice para o
+  cálculo do IDF.
+
+Na consulta, os termos pesquisados recebem o mesmo tratamento aplicado durante a
+indexação. Para cada termo encontrado, o sistema calcula
+`IDF = log10(numero de perguntas ativas / quantidade de perguntas que contêm o
+termo)` e soma `TF × IDF` por pergunta. Os resultados são apresentados em ordem
+decrescente de pontuação.
+
+### Atualização do índice
+
+O índice é atualizado junto com o ciclo de vida das perguntas:
+
+- inclusão: cria as entradas dos termos e incrementa a quantidade de entidades;
+- alteração: remove os termos antigos e indexa os novos;
+- arquivamento: remove a pergunta do índice e decrementa a quantidade de
+  entidades;
+- exclusão: remove a pergunta do índice e decrementa a quantidade de entidades.
+
+Na inicialização, o índice existente é apenas aberto. Perguntas já armazenadas
+não são reprocessadas automaticamente; o índice é atualizado somente nas
+operações de inclusão, alteração, arquivamento e exclusão realizadas pelo
+sistema.
+
+### Arquivos principais do TP3
+
+- `TP3/src/aed3/ListaInvertida.java`: armazenamento persistente do dicionário e
+  dos blocos das listas invertidas.
+- `TP3/src/aed3/ElementoLista.java`: representa o ID e a frequência de uma
+  ocorrência no índice.
+- `TP3/src/arquivos/ArquivoPergunta.java`: mantém o índice, normaliza os termos,
+  calcula TF×IDF e executa a busca.
+- `TP3/src/tela/MenuResposta.java`: disponibiliza a opção “Busca por
+  palavras-chave” na interface.
+
+## Operações especiais que foram implementadas
+
+### Há uma listagem paginada de perguntas, que mostra as perguntas em ordem decrescente de data a partir de uma Árvore B+ acrescentada ao CRUD de Perguntas?
+
+Sim. `ArquivoPergunta.readPerguntasRecentes` lê os registros pelo índice B+ de data, filtra as perguntas ativas e ordena por data decrescente. `MenuResposta` apresenta cinco perguntas por página, com navegação para as páginas anterior e seguinte.
+
+### Há uma listagem das respostas a uma pergunta selecionada, em ordem decrescente de nota?
+
+Sim. Ao abrir uma pergunta, `MenuResposta` consulta as respostas relacionadas, mostra apenas as ativas e as ordena por nota decrescente; em caso de empate, usa a data de criação decrescente.
+
+### O usuário pode responder a uma pergunta?
+
+Sim. A partir da visualização de uma pergunta, o usuário pode cadastrar uma resposta não vazia.
+
+### O usuário pode arquivar a própria resposta?
+
+Sim. Na visualização de uma resposta escrita pelo usuário autenticado, a opção de arquivamento altera seu estado para inativo.
+
+### O usuário pode avaliar uma resposta?
+
+Sim. O usuário pode concordar ou discordar de uma resposta de outra pessoa. A avaliação é registrada e a nota e a quantidade de avaliações da resposta são atualizadas. O autor não pode avaliar a própria resposta, e cada usuário pode avaliar cada resposta uma única vez.
+
+### Na área do usuário, o usuário pode visualizar as respostas às suas perguntas?
+
+Sim. Em “Minhas perguntas”, o usuário seleciona uma pergunta para visualizar as respostas ativas de outros usuários.
+
+### Na área do usuário, o usuário pode arquivar uma resposta de outro usuário a uma das suas perguntas?
+
+Sim. Na visualização das respostas de uma pergunta própria, o usuário pode selecionar e arquivar respostas ativas escritas por outras pessoas.
+
+### Na área do usuário, o usuário pode visualizar e arquivar as respostas que escreveu?
+
+Sim. Em “Minhas respostas”, o usuário vê suas respostas, seleciona uma para visualizar a pergunta e o texto completo da resposta e pode arquivá-la.
+
+### Na área do usuário, o usuário pode visualizar e arquivar a avaliação que realizou em uma resposta?
+
+Sim, conforme o cancelamento descrito no enunciado. “Minhas avaliações” mostra a pergunta, a resposta e o voto realizado; ao cancelar, remove o registro e ajusta a nota e a quantidade de avaliações da resposta. O cancelamento é uma exclusão, não um arquivamento lógico.
+
+### A integridade do relacionamento entre perguntas e respostas está mantida em todas as operações?
+
+Sim. O CRUD de respostas valida a existência e o estado ativo da pergunta ao criar uma resposta, e não permite alterar a pergunta relacionada após a criação. Ao excluir uma pergunta, suas respostas são excluídas em cascata, junto dos índices correspondentes.
+
+### A integridade do relacionamento entre respostas e avaliações está mantida em todas as operações?
+
+Sim. O CRUD de avaliações valida a existência de usuário e resposta, impede autoavaliação e votos duplicados, e não permite alterar uma avaliação existente. Criar ou cancelar uma avaliação ajusta a nota e a quantidade armazenadas na resposta. Ao excluir uma resposta, suas avaliações são excluídas em cascata.
+
+### A busca por palavras-chave está implementada?
+
+Sim. A opção “Busca por palavras-chave” normaliza os termos da consulta, consulta
+o índice invertido e apresenta as perguntas ativas em ordem decrescente de
+TF×IDF. A busca não faz lematização; portanto, formas no singular, no plural e
+conjugações verbais diferentes podem ser tratadas como termos diferentes.
+
+### O trabalho está completo e funcionando sem erros de execução?
+
+Sim. O projeto foi validado com o comando abaixo e compilou corretamente:
+>>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
 
 ```bash
 cd TP3
@@ -151,11 +275,22 @@ LINK [https://youtu.be/yfhu8lq-GNw](https://youtu.be/yfhu8lq-GNw)
 
 ## Observações
 
+<<<<<<< HEAD
 - Os dados e índices persistem em `TP3/src/dados/` e em seus subdiretórios.
 - A busca por palavras-chave é uma extensão do sistema já existente, mantendo os fluxos de login, pergunta, resposta e avaliação.
 - O uso de lista invertida permite consultas mais rápidas e mais relevantes em grandes conjuntos de perguntas.
+=======
+- A listagem de perguntas recentes percorre as entradas do índice B+ e aplica a ordenação decrescente antes de paginar.
+- A busca por palavras-chave usa o índice invertido persistente e a ordenação por TF×IDF.
+- “Minhas respostas” e “Minhas avaliações” permitem consultar e gerenciar os registros do usuário.
+- Ao excluir uma resposta pelo CRUD, as avaliações associadas também são excluídas, e a nota e a quantidade de avaliações são ajustadas antes da remoção.
+>>>>>>> 2577fac20a0fece32027809f700cc46a8e876818
 
 ## Objetivo do TP3
 
 O objetivo desta etapa foi ampliar o sistema com busca textual por palavras-chave, usando uma estrutura de lista invertida para indexar os termos presentes nas perguntas e recuperar as perguntas mais relevantes para a consulta informada pelo usuário.
 
+<<<<<<< HEAD
+=======
+O objetivo desta etapa é ampliar o sistema com perguntas recentes paginadas, respostas, avaliações e busca por palavras-chave. Foram implementados o fluxo de listagem e navegação de perguntas, a consulta e ordenação de respostas, o envio e arquivamento de respostas próprias e de respostas recebidas nas próprias perguntas, o registro e cancelamento de avaliações e a busca por perguntas usando índice invertido e TF×IDF.
+>>>>>>> 2577fac20a0fece32027809f700cc46a8e876818

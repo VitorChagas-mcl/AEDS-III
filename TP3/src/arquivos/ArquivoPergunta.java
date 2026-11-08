@@ -67,9 +67,8 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         int id = super.create(pergunta);
         IndiceUsuarioPergunta.create(new ParIdUsuarioPergunta(pergunta.getIdUsuario(), id));
         IndicePerguntaData.create(new ParIdPerguntaData(id, pergunta.getCriacao()));
-        if (indexarPergunta(pergunta)) {
-            indicePalavras.incrementaEntidades();
-        }
+        indexarPergunta(pergunta);
+        indicePalavras.incrementaEntidades();
         return id;
     }
 
@@ -126,23 +125,13 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
                         .create(new ParIdUsuarioPergunta(PerguntaNova.getIdUsuario(), PerguntaNova.getId()));
             }
             if (PerguntaAntigo.getAtiva() && PerguntaNova.getAtiva()) {
-                boolean antigaIndexada = !normalizarTermos(PerguntaAntigo.getPalavrasChave()).isEmpty();
                 atualizarIndicePalavras(PerguntaAntigo, PerguntaNova);
-                boolean novaIndexada = !normalizarTermos(PerguntaNova.getPalavrasChave()).isEmpty();
-                if (!antigaIndexada && novaIndexada) {
-                    indicePalavras.incrementaEntidades();
-                } else if (antigaIndexada && !novaIndexada) {
-                    indicePalavras.decrementaEntidades();
-                }
             } else if (PerguntaAntigo.getAtiva() && !PerguntaNova.getAtiva()) {
                 removerDoIndice(PerguntaAntigo);
-                if (!normalizarTermos(PerguntaAntigo.getPalavrasChave()).isEmpty()) {
-                    indicePalavras.decrementaEntidades();
-                }
+                indicePalavras.decrementaEntidades();
             } else if (!PerguntaAntigo.getAtiva() && PerguntaNova.getAtiva()) {
-                if (indexarPergunta(PerguntaNova)) {
-                    indicePalavras.incrementaEntidades();
-                }
+                indexarPergunta(PerguntaNova);
+                indicePalavras.incrementaEntidades();
             }
             return true;
         }
@@ -174,9 +163,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             this.IndiceUsuarioPergunta.delete(new ParIdUsuarioPergunta(Pergunta.getIdUsuario(), idPergunta));
             this.IndicePerguntaData.delete(new ParIdPerguntaData(idPergunta, Pergunta.getCriacao()));
             removerDoIndice(Pergunta);
-            if (!normalizarTermos(Pergunta.getPalavrasChave()).isEmpty()) {
-                indicePalavras.decrementaEntidades();
-            }
+            indicePalavras.decrementaEntidades();
             Pergunta.setAtiva(false);
             return true;
         }
@@ -198,7 +185,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
             if (ocorrencias.length == 0) {
                 continue;
             }
-            double idf = Math.log10((double) entidades / ocorrencias.length) + 1.0;
+            double idf = Math.log10((double) entidades / ocorrencias.length);
             for (ElementoLista ocorrencia : ocorrencias) {
                 Pergunta pergunta = read(ocorrencia.getId());
                 if (pergunta != null && pergunta.getAtiva()) {
@@ -266,7 +253,7 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
     private Map<String, Integer> contarFrequencias(ArrayList<String> termos) {
         Map<String, Integer> frequencias = new LinkedHashMap<>();
         for (String termo : termos) {
-            frequencias.put(termo, frequencias.getOrDefault(termo, 0));
+            frequencias.put(termo, frequencias.getOrDefault(termo, 0) + 1);
         }
         return frequencias;
     }
@@ -302,9 +289,8 @@ public class ArquivoPergunta extends aed3.Arquivo<Pergunta> {
         indicePalavras = new ListaInvertida(8, dicionario.getPath(), blocos.getPath());
         for (Pergunta pergunta : readAll()) {
             if (pergunta.getAtiva()) {
-                if (indexarPergunta(pergunta)) {
-                    indicePalavras.incrementaEntidades();
-                }
+                indexarPergunta(pergunta);
+                indicePalavras.incrementaEntidades();
             }
         }
     }
